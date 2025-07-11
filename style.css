@@ -1,0 +1,666 @@
+@font-face {
+  font-family: 'W95FA';
+  src: url('fonts/w95fa.woff2') format('woff2'),
+       url('fonts/w95fa.woff') format('woff');
+  font-display: swap;
+}
+
+:root {
+  --font: 'W95FA', 'Perfect DOS VGA 437 Win', 'IBM VGA 8x16', 'MS Sans Serif', 'Tahoma', 'Geneva', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'MS Sans Serif', Arial, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #008080;
+  /* font-family: 'W95FA', monospace !important; */
+}
+
+body, button, input, select, textarea, .win95-window, .win95-btn, .toolbar-label, .title-bar, .win95-menu, .desktop-icon, .icon-label {
+  font-family: var(--font) !important;
+}
+
+.desktop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 90px;
+  gap: 8px;
+  padding: 24px 16px 16px 24px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: start;
+  justify-items: start;
+}
+
+main#desktop, #desktop {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: #00807F;
+}
+
+footer.win95-taskbar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  box-shadow: 0 -1px 0 #808080;
+  margin: 0;
+}
+
+.win95-taskbar-spacer {
+  flex: 1 1 auto;
+}
+
+.win95-taskbar-clock {
+  margin-left: auto;
+  margin-right: 8px;
+  background: #e0e0e0;
+  padding: 2px 12px;
+  border: 1px solid #b0b0b0;
+  border-radius: 2px;
+  font-size: 13px;
+  min-width: 60px;
+  text-align: right;
+}
+
+.desktop-icon {
+  width: 100px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 2px;
+  background: none;
+  border: none;
+  transition: background-color 0.1s;
+  justify-content: flex-start;
+}
+
+.desktop-icon:hover {
+  background-color: rgba(0, 0, 139, 0.10);
+  color: inherit;
+}
+
+.desktop-icon:hover .icon-label {
+  color: white;
+}
+
+.icon-image {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  display: block;
+  background: none;
+  border: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.icon-label {
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+  text-align: center;
+  font-size: 12px;
+  margin-top: 2px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.1;
+  width: 100px;
+}
+
+.toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2000;
+}
+
+.toolbar .win95-btn {
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar .win95-btn:focus {
+  outline: none;
+}
+
+/* Fallback for missing icons */
+.icon-image[alt]:not([src])::before {
+  content: attr(alt);
+  color: #fff;
+  font-size: 18px;
+  display: block;
+  text-align: center;
+}
+
+.menu-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+.win95-menu, .win95-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Start menu text color fix --- */
+.win95-menu > li, .win95-menu .submenu > li {
+  display: flex;
+  align-items: center;
+  padding: 3px 10px 3px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  background: none;
+  border: none;
+  transition: background 0.1s;
+  color: #000;
+  min-height: 28px;
+  background: #c1c1c1 !important;
+}
+
+.win95-menu > li:hover, .win95-menu .submenu > li:hover {
+  background: #020080 !important;
+  color: #fff !important;
+}
+
+.win95-menu hr {
+  border: none;
+  border-top: 1px solid #b0b0b0;
+  margin: 4px 0;
+  background: #c1c1c1 !important;
+  height: 1px;
+}
+
+/* --- Remove gap between Start menu and taskbar --- */
+/* Restore background and make Start menu smaller */
+.win95-menu.start-menu {
+  background: #c0c0c0 !important;
+  border: 2px outset #fff;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.12);
+  border-radius: 0;
+  z-index: 3000;
+  min-width: 0;
+  width: 180px;
+  position: absolute;
+  left: 0;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0;
+  height: 466px !important;
+  min-height: 0 !important;
+  max-height: 466px !important;
+  overflow: hidden;
+}
+
+.win95-menu.submenu {
+  position: absolute !important;
+  left: 100% !important;
+  top: 0 !important;
+  min-width: 180px !important;
+  background: #c1c1c1 !important;
+  border: 2px solid #828282 !important;
+  z-index: 10001 !important;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+  display: none;
+}
+
+li.has-submenu {
+  position: relative !important;
+}
+
+li.has-submenu:hover > .submenu,
+li.has-submenu:focus-within > .submenu {
+  display: block !important;
+} 
+
+/* --- Win95 Window Styling --- */
+.win95-window {
+  background: #c0c0c0;
+  border: 2px outset #fff;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.18);
+  border-radius: 0;
+  position: absolute;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 100px;
+  z-index: 100;
+}
+
+.win95-title-bar {
+  background: #000080;
+  color: #fff;
+  font-weight: bold;
+  font-family: 'MS Sans Serif', Arial, sans-serif;
+  font-size: 15px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 0 8px;
+  border-bottom: 2px solid #000040;
+  user-select: none;
+}
+
+.win95-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.win95-controls .win95-btn {
+  width: 22px;
+  height: 22px;
+  background: #c0c0c0;
+  border: 2px outset #fff;
+  color: #000;
+  font-size: 15px;
+  font-family: inherit;
+  padding: 0;
+  margin-left: 2px;
+  margin-right: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win95-controls .win95-btn:active {
+  border: 2px inset #808080;
+  background: #e0e0e0;
+}
+
+.win95-window-body {
+  background: #fff;
+  color: #000;
+  font-family: 'MS Sans Serif', Arial, sans-serif;
+  font-size: 14px;
+  padding: 10px;
+  height: calc(100% - 28px);
+  overflow: auto;
+}
+
+/* Prevent menu styles from affecting windows */
+.win95-window .win95-menu,
+.win95-window .win95-menu ul {
+  background: none;
+  border: none;
+  box-shadow: none;
+} 
+
+/* Position the destruction toolbar horizontally at the bottom right, above the taskbar */
+.toolbar.win95-window {
+  position: fixed !important;
+  right: 16px !important;
+  left: auto !important;
+  bottom: 56px !important;
+  top: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  gap: 12px !important;
+  z-index: 2000;
+}
+
+.toolbar .win95-btn {
+  margin: 0 !important;
+} 
+
+/* Ensure the destruction toolbar shows all buttons and allows scrolling if needed */
+.toolbar.win95-window {
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+  max-width: none !important;
+  width: auto !important;
+}
+
+.toolbar .win95-btn {
+  flex: 0 0 auto !important;
+} 
+
+/* Make the toolbar more compact vertically and style the label */
+.toolbar.win95-window {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  min-height: unset !important;
+}
+
+.toolbar-label {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: normal;
+  color: #000;
+  margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 0.5px;
+  order: -1;
+} 
+
+/* Make the toolbar window taller and stack label above buttons */
+.toolbar.win95-window {
+  min-height: 140px !important;
+  height: auto !important;
+  padding-bottom: 24px !important;
+}
+
+.toolbar-label {
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+
+/* Toolbar buttons horizontal scroll styling */
+.toolbar-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  padding-bottom: 2px;
+  align-items: center;
+  white-space: nowrap;
+  max-width: 150px;
+  width: 150px;
+  overflow-x: hidden;
+}
+
+.toolbar-arrow {
+  background: #c0c0c0;
+  border: 2px outset #fff;
+  color: #000;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 2px;
+  user-select: none;
+}
+
+.toolbar-arrow:active {
+  border: 2px inset #808080;
+  background: #e0e0e0;
+} 
+
+.toolbar.win95-window {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+} 
+
+/* Start button icon alignment */
+.start-btn-wide {
+  min-width: 90px;
+  width: 110px;
+  text-align: left;
+  padding-left: 12px;
+  padding-right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-icon {
+  width: 24px;
+  height: 24px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  margin-right: 8px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+/* Start menu banner image fit */
+.start-banner img {
+  width: 32px;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Start menu banner styling */
+.start-banner {
+  width: 32px !important;
+  height: 350px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  min-height: 350px !important;
+  max-height: 350px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #828282 !important;
+}
+
+.win95-menu.start-menu > ul.win95-menu,
+.win95-menu.start-menu > ul.win95-menu li {
+  color: #000 !important;
+}
+
+.win95-menu.start-menu > ul.win95-menu {
+  width: 140px !important;
+  min-width: 140px !important;
+  max-width: 140px !important;
+  height: 100% !important;
+  background: #c1c1c1 !important;
+  /* border: 2px solid red !important; */
+  z-index: 9999 !important;
+  position: relative !important;
+  /* display: block !important; */
+  overflow: visible !important;
+  color: #000 !important;
+} 
+
+.win95-menu.start-menu {
+  bottom: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+footer.win95-taskbar {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  border-top: 2px solid #fff !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+body, main#desktop, #desktop {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+} 
+
+.win95-menu.start-menu {
+  /* display: flex !important; */
+  flex-direction: row !important;
+  height: 350px !important;
+  min-width: 172px !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  z-index: 99999 !important;
+}
+
+.start-banner img {
+  width: 32px !important;
+  height: auto !important;
+  display: block;
+  object-fit: contain;
+  padding: 0 !important;
+}
+
+.win95-menu.start-menu[style*="display: block"] {
+  display: flex !important;
+}
+
+.start-banner {
+  width: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  height: 466px !important;
+  min-height: 466px !important;
+  max-height: 466px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #828282 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.win95-menu.start-menu > ul.win95-menu {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #c1c1c1 !important;
+  color: #000 !important;
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 2 !important;
+}
+
+.win95-menu.start-menu > ul.win95-menu li {
+  display: flex !important;
+  align-items: center !important;
+  color: #000 !important;
+  font-size: 16px !important;
+  min-height: 28px !important;
+  padding: 0 8px !important;
+  background: transparent !important;
+  border: none !important;
+  box-sizing: border-box !important;
+} 
+
+.toolbar.win95-window {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  min-height: 160px !important;
+  height: auto !important;
+  padding-top: 12px !important;
+  padding-bottom: 16px !important;
+  gap: 0 !important;
+}
+
+.toolbar-label {
+  margin-bottom: 10px;
+  margin-top: 0;
+  text-align: center;
+}
+
+.toolbar-buttons-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.toolbar-volume {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0 8px;
+} 
+
+@keyframes fallingShardStraight {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--shard-x, 0), 300px);
+    opacity: 0.7;
+  }
+}
+
+.glass-shard {
+  animation: fallingShardStraight 1.2s linear forwards;
+  position: absolute;
+  left: -65px; 
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+} 
+
+.win95-menu .menu-icon {
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+} 
+
+/* blue hover for all <li> in the Start menu */
+#startMenu li:hover,
+#startMenu .submenu li:hover {
+  background: #020080 !important;
+  color: #fff !important;
+} 

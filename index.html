@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desktop Destroyer - Windows 95 Style</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/95css@latest/css/95css.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="desktop">
+    <div class="desktop-grid">
+      <div class="desktop-icon" onclick="openWindow('my-computer')">
+        <img src="assets/icons/my computer.png" class="icon-image" alt="My Computer">
+        <div class="icon-label">My Computer</div>
+      </div>
+      <div class="desktop-icon" onclick="openWindow('network-neighborhood')">
+        <img src="assets/icons/network neighborhood.png" class="icon-image" alt="Network Neighborhood">
+        <div class="icon-label">Network Neighborhood</div>
+      </div>
+      <div class="desktop-icon" onclick="openWindow('inbox')">
+        <img src="assets/icons/inbox.png" class="icon-image" alt="Inbox">
+        <div class="icon-label">Inbox</div>
+      </div>
+      <div class="desktop-icon" onclick="openWindow('recycle-bin')">
+        <img src="assets/icons/recycle bin.png" class="icon-image" alt="Recycle Bin">
+        <div class="icon-label">Recycle Bin</div>
+      </div>
+      <div class="desktop-icon" onclick="openWindow('michaelsoft-network')">
+        <img src="assets/icons/folder.png" class="icon-image" alt="Online Services">
+        <div class="icon-label">Online Services</div>
+      </div>
+    </div>
+    <!-- Destruction Toolbar -->
+    <div class="win95-window toolbar">
+      <div class="toolbar-label">Destruction Tools</div>
+      <div class="toolbar-buttons-wrapper" style="display: flex; align-items: center; width: 100%;">
+        <div class="toolbar-buttons" style="overflow: hidden; flex: 1 1 auto;">
+          <button class="tool-button win95-btn" data-tool="hammer" title="Hammer">🔨</button>
+          <button class="tool-button win95-btn" data-tool="stamp" title="Stamp">📬</button>
+          <button class="tool-button win95-btn" data-tool="reset" title="Reset Desktop">🔄</button>
+        </div>
+      </div>
+      <div class="toolbar-volume" style="width:100%; display:flex; align-items:center; gap:8px; margin-top:8px;">
+        <label for="destruction-volume" style="font-size:12px;">Volume</label>
+        <input type="range" id="destruction-volume" min="0" max="1" step="0.01" value="0.3" style="flex:1;">
+      </div>
+    </div>
+    <div id="windows-container"></div>
+    <nav class="win95-menu start-menu" id="startMenu" style="display:none; position: absolute; left: 0; bottom: 0; min-width: 220px; height: 350px;">
+      <div class="start-banner"><img src="assets/binbows banner.png" alt="Windows 95" style="width:32px; height:350px; object-fit:contain; display:block;"></div>
+      <ul class="win95-menu">
+        <li class="has-submenu">
+          <img src="assets/icons/program group.png" class="menu-icon" alt="Programs"> Programs
+          <ul class="win95-menu submenu">
+            <li onclick="openWindow('notepad')"><img src="assets/icons/notepad.png" class="menu-icon" alt="Notepad"> Notepad</li>
+            <li onclick="openWindow('paint')"><img src="assets/icons/paint.png" class="menu-icon" alt="Paint"> Paint</li>
+            <li onclick="openWindow('minesweeper')"><img src="assets/icons/minesweeper.png" class="menu-icon" alt="Minesweeper"> Minesweeper</li>
+            <li onclick="openWindow('browser')"><img src="assets/icons/browser.png" class="menu-icon" alt="Internet Explorer"> Internet Explorer</li>
+          </ul>
+        </li>
+        <li onclick="openWindow('documents')"><img src="assets/icons/my documents.png" class="menu-icon" alt="Documents"> Documents</li>
+        <li onclick="openWindow('settings')"><img src="assets/icons/settings.png" class="menu-icon" alt="Settings"> Settings</li>
+        <li onclick="openWindow('find')"><img src="assets/icons/find.png" class="menu-icon" alt="Find"> Find</li>
+        <li onclick="openWindow('help')"><img src="assets/icons/help.png" class="menu-icon" alt="Help"> Help</li>
+        <li onclick="openWindow('run')"><img src="assets/icons/run.png" class="menu-icon" alt="Run"> Run...</li>
+        <hr>
+        <li onclick="openWindow('shutdown')"><img src="assets/icons/shut down.png" class="menu-icon" alt="Shut Down"> Shut Down...</li>
+      </ul>
+    </nav>
+  </main>
+  <footer class="win95-taskbar">
+    <button class="win95-btn start-btn-wide" id="startButton">
+      <img src="assets/binbows.png" alt="Windows" class="start-icon"> Start
+    </button>
+    <span class="win95-taskbar-spacer"></span>
+    <span class="win95-taskbar-clock" id="clock"></span>
+  </footer>
+  <script src="script.js"></script>
+  <div id="custom-cursor" style="display:none; position:fixed; pointer-events:none; z-index:99999;"></div>
+  <div id="shutdown-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; justify-content:center; align-items:center;">
+    <span style="color:orange; font-size:6vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000;">It's now safe to turn off<br>your computer.</span>
+  </div>
+
+</body>
+</html>
