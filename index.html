@@ -86,8 +86,13 @@
   </footer>
   <script src="script.js"></script>
   <div id="custom-cursor" style="display:none; position:fixed; pointer-events:none; z-index:99999;"></div>
-  <div id="shutdown-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; justify-content:center; align-items:center;">
-    <span style="color:orange; font-size:6vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000;">It's now safe to turn off<br>your computer.</span>
+  <div id="shutdown-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; flex-direction:column; justify-content:center; align-items:center;">
+    <span style="color:orange; font-size:5vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000; line-height:1.1; letter-spacing:2px;">
+      It's now safe to turn off
+    </span>
+    <span style="color:orange; font-size:5vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000; line-height:1.1; letter-spacing:2px;">
+      your computer.
+    </span>
   </div>
 
 </body>

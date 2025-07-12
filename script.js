@@ -848,6 +848,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Allow clicking the overlay to hide it
+    const shutdownOverlay = document.getElementById('shutdown-overlay');
+    if (shutdownOverlay) {
+        shutdownOverlay.addEventListener('click', function() {
+            shutdownOverlay.style.display = 'none';
+        });
+    }
+
     // --- Destruction Toolbar Arrow Scroll ---
     const leftArrow = document.getElementById('toolbar-arrow-left');
     const rightArrow = document.getElementById('toolbar-arrow-right');
