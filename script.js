@@ -26,14 +26,14 @@ function updateClock() {
 let currentTool = null; // Default: no tool selected
 
 // Hammer image sizes (actual size of hammer idle.png)
-const HAMMER_WIDTH = 85; // Reduced from 107
-const HAMMER_HEIGHT = 119; // Reduced from 149
+const HAMMER_WIDTH = 85; 
+const HAMMER_HEIGHT = 119; 
 const HAMMER_IDLE = 'assets/hammer idle.png';
 const HAMMER_CLICK = 'assets/hammer click.png';
 
 // Stamp image sizes 
-const STAMP_WIDTH = 96;
-const STAMP_HEIGHT = 96;
+const STAMP_WIDTH = 144; 
+const STAMP_HEIGHT = 144; 
 const STAMP_IDLE = 'assets/stamp idle.png';
 const STAMP_CLICK = 'assets/stamp click.png';
 
@@ -48,6 +48,7 @@ window.destructionVolume = 0.3;
 // Global window management variables and functions
 let windowCounter = 0;
 let openWindows = [];
+let importedImages = []; // Track imported images
 
 function openWindow(windowType) {
     const windowId = `window-${windowType}-${++windowCounter}`;
@@ -356,6 +357,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.remove('active');
                 currentTool = null;
                 setHammerCursorActive(false);
+                setStampCursorActive(false);
+                // Reset button images to idle state
+                const hammerBtn = document.querySelector('[data-tool="hammer"]');
+                const stampBtn = document.querySelector('[data-tool="stamp"]');
+                if (hammerBtn) {
+                    const hammerImg = hammerBtn.querySelector('img');
+                    if (hammerImg) hammerImg.src = HAMMER_IDLE;
+                }
+                if (stampBtn) {
+                    const stampImg = stampBtn.querySelector('img');
+                    if (stampImg) stampImg.src = STAMP_IDLE;
+                }
                 return;
             }
             // Deactivate all, activate this
@@ -365,8 +378,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Change cursor based on tool
             if (currentTool === 'hammer') {
                 setHammerCursorActive(true);
+                // Update button image to click state
+                const hammerImg = this.querySelector('img');
+                if (hammerImg) hammerImg.src = HAMMER_CLICK;
             } else if (currentTool === 'stamp') {
                 setStampCursorActive(true);
+                // Update button image to click state
+                const stampImg = this.querySelector('img');
+                if (stampImg) stampImg.src = STAMP_CLICK;
             } else {
                 setHammerCursorActive(false);
                 setStampCursorActive(false);
@@ -389,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
     desktop.addEventListener('mousemove', function(e) {
         if (currentTool === 'hammer' && customCursor.style.display === 'block') {
             // Offset so the tip of the hammer is at the pointer
-            const offsetX = 32; // adjust so hammer tip is at pointer
+            const offsetX = 32; 
             const offsetY = 16;
             customCursor.style.left = (e.clientX - offsetX) + 'px';
             customCursor.style.top = (e.clientY - offsetY) + 'px';
@@ -397,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function() {
             lastCursorY = e.clientY;
         } else if (currentTool === 'stamp' && customCursor.style.display === 'block') {
             // Offset for stamp cursor 
-            const offsetX = 32; // adjust so stamp center is at pointer
-            const offsetY = 32;
+            const offsetX = 48; 
+            const offsetY = 48; 
             customCursor.style.left = (e.clientX - offsetX) + 'px';
             customCursor.style.top = (e.clientY - offsetY) + 'px';
             lastCursorX = e.clientX;
@@ -545,12 +564,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const stampElement = document.createElement('img');
         stampElement.className = 'stamp-effect';
         stampElement.style.position = 'absolute';
-        stampElement.style.left = (x - 67) + 'px'; // 128px to the left
-        stampElement.style.top = (y - 20) + 'px'; // Adjust for stamp size
+        stampElement.style.left = (x - 100) + 'px'; // Adjusted for larger stamp
+        stampElement.style.top = (y - 30) + 'px'; // Adjusted for larger stamp
         stampElement.style.width = 'auto';
         stampElement.style.height = 'auto';
-        stampElement.style.maxWidth = '100px'; // Limit size if needed
-        stampElement.style.maxHeight = '100px';
+        stampElement.style.maxWidth = '150px'; // Increased from 100px
+        stampElement.style.maxHeight = '150px'; // Increased from 100px
         stampElement.src = `assets/stamp${stampNumber}.png`;
         stampElement.style.opacity = '1';
         stampElement.style.zIndex = '1000';
@@ -739,6 +758,14 @@ document.addEventListener('DOMContentLoaded', function() {
             el.style.clipPath = '';
         });
         
+        // Remove imported images
+        importedImages.forEach(img => {
+            if (img.element && img.element.parentNode) {
+                img.element.remove();
+            }
+        });
+        importedImages = [];
+        
         // Clear damage tracking
         damageMap.clear();
         glassBreaksMap.clear(); // Clear glass breaks map
@@ -832,6 +859,117 @@ document.addEventListener('DOMContentLoaded', function() {
         rightArrow.addEventListener('click', function() {
             buttonsContainer.scrollBy({ left: 100, behavior: 'smooth' });
         });
+    }
+
+    // --- Image Import Functionality ---
+    const importBtn = document.getElementById('import-btn');
+    const fileInput = document.getElementById('file-input');
+    
+    if (importBtn && fileInput) {
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && (file.type.startsWith('image/') || file.type.startsWith('video/'))) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const mediaUrl = event.target.result;
+                    addImportedMediaToDesktop(file.name, mediaUrl, file.type);
+                };
+                reader.onerror = (error) => {
+                    console.error('FileReader error:', error);
+                };
+                reader.readAsDataURL(file);
+            } else if (file) {
+                alert('Please select an image or video file (PNG, JPG, GIF, MP4, WebM, etc.)');
+            }
+            // Reset file input
+            fileInput.value = '';
+        });
+    }
+    
+    function addImportedMediaToDesktop(filename, mediaUrl, fileType) {
+        const mediaId = `imported-${Date.now()}`;
+        const desktopGrid = document.querySelector('.desktop-grid');
+        
+        if (!desktopGrid) {
+            return;
+        }
+        
+        // Create desktop icon
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'desktop-icon';
+        iconDiv.onclick = () => openImportedMediaWindow(mediaId, filename, mediaUrl, fileType);
+        
+        // Create appropriate icon content based on file type
+        let iconContent;
+        if (fileType.startsWith('image/')) {
+            iconContent = `<img src="${mediaUrl}" class="icon-image" alt="${filename}" style="max-width: 32px; max-height: 32px; object-fit: contain;">`;
+        } else if (fileType.startsWith('video/')) {
+            iconContent = `<video src="${mediaUrl}" class="icon-image" style="max-width: 32px; max-height: 32px; object-fit: contain;" muted></video>`;
+        }
+        
+        iconDiv.innerHTML = `
+            ${iconContent}
+            <div class="icon-label">${filename.length > 12 ? filename.substring(0, 9) + '...' : filename}</div>
+        `;
+        
+        desktopGrid.appendChild(iconDiv);
+        
+        // Store media data
+        importedImages.push({
+            id: mediaId,
+            filename: filename,
+            mediaUrl: mediaUrl,
+            fileType: fileType,
+            element: iconDiv
+        });
+    }
+    
+    function openImportedMediaWindow(mediaId, filename, mediaUrl, fileType) {
+        const windowId = `window-imported-${mediaId}`;
+        
+        const window = document.createElement('div');
+        window.className = 'win95-window';
+        window.id = windowId;
+        window.style.position = 'absolute';
+        window.style.top = '100px';
+        window.style.left = '200px';
+        window.style.width = '600px';
+        window.style.height = '500px';
+        window.style.zIndex = '100';
+        
+        // Create appropriate media content based on file type
+        let mediaContent;
+        if (fileType.startsWith('image/')) {
+            mediaContent = `<img src="${mediaUrl}" style="max-width: 100%; max-height: 400px; object-fit: contain; border: 1px solid #ccc;">`;
+        } else if (fileType.startsWith('video/')) {
+            mediaContent = `<video src="${mediaUrl}" controls style="max-width: 100%; max-height: 400px; object-fit: contain; border: 1px solid #ccc;"></video>`;
+        }
+        
+        window.innerHTML = `
+            <div class="win95-title-bar">
+                <span>${filename}</span>
+                <div class="win95-controls">
+                    <button class="win95-btn" onclick="minimizeWindow('${windowId}')">_</button>
+                    <button class="win95-btn" onclick="maximizeWindow('${windowId}')">□</button>
+                    <button class="win95-btn" onclick="closeWindow('${windowId}')">×</button>
+                </div>
+            </div>
+            <div class="win95-window-body" style="height: calc(100% - 22px); overflow: auto; padding: 10px;">
+                <div style="text-align: center;">
+                    ${mediaContent}
+                    <p style="margin-top: 10px; color: #666;">Imported media: ${filename}</p>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('windows-container').appendChild(window);
+        openWindows.push(windowId);
+        makeWindowDraggable(window);
+        bringWindowToFront(window);
     }
 
     // --- Window Management System ---

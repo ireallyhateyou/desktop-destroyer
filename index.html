@@ -36,14 +36,22 @@
       <div class="toolbar-label">Destruction Tools</div>
       <div class="toolbar-buttons-wrapper" style="display: flex; align-items: center; width: 100%;">
         <div class="toolbar-buttons" style="overflow: hidden; flex: 1 1 auto;">
-          <button class="tool-button win95-btn" data-tool="hammer" title="Hammer">🔨</button>
-          <button class="tool-button win95-btn" data-tool="stamp" title="Stamp">📬</button>
+          <button class="tool-button win95-btn" data-tool="hammer" title="Hammer">
+            <img src="assets/hammer idle.png" alt="Hammer" style="width: 24px; height: 24px; object-fit: contain;">
+          </button>
+          <button class="tool-button win95-btn" data-tool="stamp" title="Stamp">
+            <img src="assets/stamp idle.png" alt="Stamp" style="width: 24px; height: 24px; object-fit: contain;">
+          </button>
           <button class="tool-button win95-btn" data-tool="reset" title="Reset Desktop">🔄</button>
         </div>
       </div>
       <div class="toolbar-volume" style="width:100%; display:flex; align-items:center; gap:8px; margin-top:8px;">
         <label for="destruction-volume" style="font-size:12px;">Volume</label>
         <input type="range" id="destruction-volume" min="0" max="1" step="0.01" value="0.3" style="flex:1;">
+      </div>
+      <div class="toolbar-import" style="width:100%; margin-top:8px;">
+        <button class="win95-btn" id="import-btn" style="width:100%; font-size:11px;">Import Media</button>
+        <input type="file" id="file-input" accept="image/*,video/*" style="display:none;">
       </div>
     </div>
     <div id="windows-container"></div>

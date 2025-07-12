@@ -30,7 +30,7 @@ body, button, input, select, textarea, .win95-window, .win95-btn, .toolbar-label
 
 .desktop-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, 100px);
   grid-auto-rows: 90px;
   gap: 8px;
   padding: 24px 16px 16px 24px;
@@ -152,6 +152,38 @@ footer.win95-taskbar {
 
 .toolbar .win95-btn:focus {
   outline: none;
+}
+
+/* Style for images inside toolbar buttons */
+.toolbar .win95-btn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* Style for import button */
+.toolbar-import .win95-btn {
+  font-size: 11px !important;
+  padding: 6px 12px !important;
+  min-height: 28px !important;
+  background: #c0c0c0 !important;
+  border: 2px outset #fff !important;
+  color: #000 !important;
+  cursor: pointer !important;
+  transition: all 0.1s;
+  width: 100% !important;
+  display: block !important;
+}
+
+.toolbar-import .win95-btn:hover {
+  background: #d0d0d0;
+}
+
+.toolbar-import .win95-btn:active {
+  border: 2px inset #808080;
+  background: #e0e0e0;
 }
 
 /* Fallback for missing icons */
@@ -330,9 +362,9 @@ li.has-submenu:focus-within > .submenu {
   bottom: 56px !important;
   top: auto !important;
   display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-end !important;
-  gap: 12px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
   z-index: 2000;
 }
 
