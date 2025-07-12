@@ -673,6 +673,11 @@ body, main#desktop, #desktop {
   left: -65px; 
 }
 
+.bullet-hole {
+  box-shadow: 0 0 4px 1px #000a;
+  pointer-events: none;
+}
+
 @keyframes fadeOut {
     0% {
         opacity: 1;
@@ -695,4 +700,9 @@ body, main#desktop, #desktop {
 #startMenu .submenu li:hover {
   background: #020080 !important;
   color: #fff !important;
+} 
+
+.machine-gun-hole {
+  pointer-events: none;
+  image-rendering: pixelated;
 } 

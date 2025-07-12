@@ -35,15 +35,20 @@
     <div class="win95-window toolbar">
       <div class="toolbar-label">Destruction Tools</div>
       <div class="toolbar-buttons-wrapper" style="display: flex; align-items: center; width: 100%;">
+        <button id="toolbar-arrow-left" class="toolbar-arrow" title="Scroll Left">&lt;</button>
         <div class="toolbar-buttons" style="overflow: hidden; flex: 1 1 auto;">
           <button class="tool-button win95-btn" data-tool="hammer" title="Hammer">
             <img src="assets/hammer idle.png" alt="Hammer" style="width: 24px; height: 24px; object-fit: contain;">
+          </button>
+          <button class="tool-button win95-btn" data-tool="machine-gun" title="Machine Gun">
+            <img src="assets/machine gun idle.png" alt="Machine Gun" style="width: 24px; height: 24px; object-fit: contain;">
           </button>
           <button class="tool-button win95-btn" data-tool="stamp" title="Stamp">
             <img src="assets/stamp idle.png" alt="Stamp" style="width: 24px; height: 24px; object-fit: contain;">
           </button>
           <button class="tool-button win95-btn" data-tool="reset" title="Reset Desktop">🔄</button>
         </div>
+        <button id="toolbar-arrow-right" class="toolbar-arrow" title="Scroll Right">&gt;</button>
       </div>
       <div class="toolbar-volume" style="width:100%; display:flex; align-items:center; gap:8px; margin-top:8px;">
         <label for="destruction-volume" style="font-size:12px;">Volume</label>

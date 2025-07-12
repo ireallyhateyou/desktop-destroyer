@@ -37,6 +37,10 @@ const STAMP_HEIGHT = 144;
 const STAMP_IDLE = 'assets/stamp idle.png';
 const STAMP_CLICK = 'assets/stamp click.png';
 
+// Add machine gun tool constants
+const MACHINE_GUN_IDLE = 'assets/machine gun idle.png';
+const MACHINE_GUN_CLICK = 'assets/machine gun click.png';
+
 // Glass break damage system
 const GLASS_BREAK_FRAME_WIDTH = 150;
 const MAX_DAMAGE_LEVEL = 5; // 6 frames total (0-5)
@@ -298,6 +302,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Add setMachineGunCursorActive function
+    function setMachineGunCursorActive(active) {
+        if (active) {
+            desktop.style.cursor = 'none';
+            customCursor.style.display = 'block';
+            customCursor.style.width = '120px';
+            customCursor.style.height = '120px';
+            customCursor.innerHTML = `<img src="${MACHINE_GUN_IDLE}" style="width:100%;height:100%;object-fit:contain;">`;
+        } else {
+            desktop.style.cursor = '';
+            customCursor.style.display = 'none';
+            customCursor.innerHTML = '';
+        }
+    }
+
     // Get damage level at specific coordinates
     function getDamageLevel(x, y) {
         // For compatibility, return the damage of the last break at this location
@@ -358,9 +377,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentTool = null;
                 setHammerCursorActive(false);
                 setStampCursorActive(false);
+                setMachineGunCursorActive(false); // Deactivate machine gun
                 // Reset button images to idle state
                 const hammerBtn = document.querySelector('[data-tool="hammer"]');
                 const stampBtn = document.querySelector('[data-tool="stamp"]');
+                const machineGunBtn = document.querySelector('[data-tool="machine-gun"]');
                 if (hammerBtn) {
                     const hammerImg = hammerBtn.querySelector('img');
                     if (hammerImg) hammerImg.src = HAMMER_IDLE;
@@ -369,12 +390,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     const stampImg = stampBtn.querySelector('img');
                     if (stampImg) stampImg.src = STAMP_IDLE;
                 }
+                if (machineGunBtn) {
+                    const machineGunImg = machineGunBtn.querySelector('img');
+                    if (machineGunImg) machineGunImg.src = MACHINE_GUN_IDLE;
+                }
                 return;
             }
             // Deactivate all, activate this
             toolButtons.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentTool = this.dataset.tool;
+            
+            // Stop any ongoing machine gun spray when switching tools
+            if (isMachineGunSpraying) {
+                isMachineGunSpraying = false;
+                if (machineGunSprayInterval) {
+                    clearInterval(machineGunSprayInterval);
+                    machineGunSprayInterval = null;
+                }
+            }
+            
             // Change cursor based on tool
             if (currentTool === 'hammer') {
                 setHammerCursorActive(true);
@@ -386,9 +421,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update button image to click state
                 const stampImg = this.querySelector('img');
                 if (stampImg) stampImg.src = STAMP_CLICK;
+            } else if (currentTool === 'machine-gun') {
+                setMachineGunCursorActive(true);
+                // Update button image to click state
+                const machineGunImg = this.querySelector('img');
+                if (machineGunImg) machineGunImg.src = MACHINE_GUN_CLICK;
             } else {
                 setHammerCursorActive(false);
                 setStampCursorActive(false);
+                setMachineGunCursorActive(false);
                 desktop.style.cursor = 'crosshair';
             }
         });
@@ -405,6 +446,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Move the custom cursor with the mouse
     let lastCursorX = 0, lastCursorY = 0;
+    // Add machine gun spraying variables
+    let isMachineGunSpraying = false;
+    let machineGunSprayInterval = null;
+    let sprayX = 0, sprayY = 0; // Track current mouse position for spraying
+
     desktop.addEventListener('mousemove', function(e) {
         if (currentTool === 'hammer' && customCursor.style.display === 'block') {
             // Offset so the tip of the hammer is at the pointer
@@ -422,6 +468,17 @@ document.addEventListener('DOMContentLoaded', function() {
             customCursor.style.top = (e.clientY - offsetY) + 'px';
             lastCursorX = e.clientX;
             lastCursorY = e.clientY;
+        } else if (currentTool === 'machine-gun' && customCursor.style.display === 'block') {
+            // Offset for machine gun cursor
+            const offsetX = 60;
+            const offsetY = 60;
+            customCursor.style.left = (e.clientX - offsetX) + 'px';
+            customCursor.style.top = (e.clientY - offsetY) + 'px';
+            lastCursorX = e.clientX;
+            lastCursorY = e.clientY;
+            // Update spray position
+            sprayX = e.clientX;
+            sprayY = e.clientY;
         }
     });
 
@@ -430,17 +487,32 @@ document.addEventListener('DOMContentLoaded', function() {
             setHammerCursorActive(true);
         } else if (currentTool === 'stamp') {
             setStampCursorActive(true);
+        } else if (currentTool === 'machine-gun') {
+            setMachineGunCursorActive(true);
         }
     });
     desktop.addEventListener('mouseleave', function(e) {
         setHammerCursorActive(false);
         setStampCursorActive(false);
+        setMachineGunCursorActive(false);
     });
+
     desktop.addEventListener('mousedown', function(e) {
         if (currentTool === 'hammer') {
             customCursor.innerHTML = `<img src="${HAMMER_CLICK}" style="width:auto;height:auto;display:block;">`;
         } else if (currentTool === 'stamp') {
             customCursor.innerHTML = `<img src="${STAMP_CLICK}" style="width:auto;height:auto;display:block;">`;
+        } else if (currentTool === 'machine-gun') {
+            customCursor.innerHTML = `<img src="${MACHINE_GUN_CLICK}" style="width:auto;height:auto;display:block;">`;
+            // Start spraying bullets at current mouse position
+            isMachineGunSpraying = true;
+            sprayX = e.clientX;
+            sprayY = e.clientY;
+            machineGunSprayInterval = setInterval(() => {
+                if (isMachineGunSpraying) {
+                    machineGunDestroy(sprayX, sprayY);
+                }
+            }, 100); // Spray a bullet every 100ms
         }
     });
     desktop.addEventListener('mouseup', function(e) {
@@ -448,6 +520,18 @@ document.addEventListener('DOMContentLoaded', function() {
             customCursor.innerHTML = `<img src="${HAMMER_IDLE}" style="width:auto;height:auto;display:block;">`;
         } else if (currentTool === 'stamp') {
             customCursor.innerHTML = `<img src="${STAMP_IDLE}" style="width:auto;height:auto;display:block;">`;
+        } else if (currentTool === 'machine-gun') {
+            customCursor.innerHTML = `<img src="${MACHINE_GUN_IDLE}" style="width:auto;height:auto;display:block;">`;
+            // Stop spraying bullets
+            isMachineGunSpraying = false;
+            if (machineGunSprayInterval) {
+                clearInterval(machineGunSprayInterval);
+                machineGunSprayInterval = null;
+            }
+            setTimeout(() => {
+                isMachineGunSpraying = false;
+                machineGunSprayInterval = null;
+            }, 50);
         }
     });
 
@@ -455,6 +539,15 @@ document.addEventListener('DOMContentLoaded', function() {
     desktop.addEventListener('click', function(e) {
         if (!currentTool) return;
         if (e.target.classList.contains('tool-button') || e.target.closest('.toolbar')) {
+            return;
+        }
+        // Don't trigger single click for machine gun if we're spraying or if we just stopped spraying
+        if (currentTool === 'machine-gun' && (isMachineGunSpraying || machineGunSprayInterval)) {
+            return;
+        }
+        
+        // Don't trigger machine gun if clicking on an existing machine gun hole that's still animating
+        if (currentTool === 'machine-gun' && e.target.classList.contains('machine-gun-hole') && !e.target._animationCompleted) {
             return;
         }
         const x = e.clientX;
@@ -477,6 +570,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'saw':
                 sawDestroy(x, y);
+                break;
+            case 'machine-gun':
+                machineGunDestroy(x, y);
                 break;
         }
         destructionCount++;
@@ -575,6 +671,60 @@ document.addEventListener('DOMContentLoaded', function() {
         stampElement.style.zIndex = '1000';
         stampElement.style.pointerEvents = 'none';
         document.getElementById('desktop').appendChild(stampElement);
+    }
+
+    function machineGunDestroy(x, y) {
+        // Play machine gun sound
+        const audio = new Audio('assets/machine gun.ogg');
+        audio.volume = window.destructionVolume;
+        audio.play();
+        // Create the animated hole effect
+        const hole = document.createElement('div');
+        hole.className = 'machine-gun-hole';
+        hole.style.position = 'absolute';
+        hole.style.left = (x - 100) + 'px'; // Center the effect + 100px left offset
+        hole.style.top = (y - 100) + 'px'; // Center the effect + 100px up offset
+        hole.style.width = '80px';
+        hole.style.height = '80px';
+        hole.style.backgroundImage = 'url("assets/hole1.png")'; // Use your 6-frame sprite
+        hole.style.backgroundSize = '480px 80px'; // 6 frames horizontally, 80px each
+        hole.style.backgroundPosition = '0 0';
+        hole.style.backgroundRepeat = 'no-repeat';
+        hole.style.pointerEvents = 'none';
+        hole.style.zIndex = '1200';
+        
+        // Mark as not completed initially
+        hole._animationCompleted = false;
+
+        document.getElementById('desktop').appendChild(hole);
+
+        // Animate using requestAnimationFrame
+        let frame = 0;
+        const totalFrames = 6;
+        const frameWidth = 80;
+        let lastTimestamp = null;
+        const frameDuration = 120; // ms per frame
+
+        function animateHole(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const elapsed = timestamp - lastTimestamp;
+
+            if (elapsed >= frameDuration) {
+                frame++;
+                lastTimestamp = timestamp;
+                if (frame >= totalFrames) {
+                    hole.style.backgroundPosition = `-${(totalFrames - 1) * frameWidth}px 0`;
+                    hole._animationCompleted = true;
+                    return; // Stop animating
+                } else {
+                    hole.style.backgroundPosition = `-${frame * frameWidth}px 0`;
+                }
+            }
+            if (!hole._animationCompleted) {
+                requestAnimationFrame(animateHole);
+            }
+        }
+        requestAnimationFrame(animateHole);
     }
 
     function drillDestroy(x, y) {
@@ -746,7 +896,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetDesktop() {
         // Remove all destruction effects
-        document.querySelectorAll('.destruction-particle, .crack, .hole, .fire-particle, .spark, .glass-break-damage, .stamp-effect').forEach(el => el.remove());
+        document.querySelectorAll('.destruction-particle, .crack, .hole, .fire-particle, .spark, .glass-break-damage, .stamp-effect, .machine-gun-hole').forEach(el => {
+            // Clear any ongoing animations before removing
+            if (el._animationInterval) {
+                clearInterval(el._animationInterval);
+            }
+            el.remove();
+        });
         
         // Reset all elements
         document.querySelectorAll('.desktop-icon, .window').forEach(el => {
