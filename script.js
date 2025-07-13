@@ -678,6 +678,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const audio = new Audio('assets/machine gun.ogg');
         audio.volume = window.destructionVolume;
         audio.play();
+        // Randomly pick a hole sprite (1-5)
+        const holeNum = Math.floor(Math.random() * 5) + 1;
         // Create the animated hole effect
         const hole = document.createElement('div');
         hole.className = 'machine-gun-hole';
@@ -686,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hole.style.top = (y - 100) + 'px'; // Center the effect + 100px up offset
         hole.style.width = '80px';
         hole.style.height = '80px';
-        hole.style.backgroundImage = 'url("assets/hole1.png")'; // Use your 6-frame sprite
+        hole.style.backgroundImage = `url("assets/hole${holeNum}.png")`;
         hole.style.backgroundSize = '480px 80px'; // 6 frames horizontally, 80px each
         hole.style.backgroundPosition = '0 0';
         hole.style.backgroundRepeat = 'no-repeat';
@@ -1146,6 +1148,126 @@ document.addEventListener('DOMContentLoaded', function() {
     window.shutdown = function() {
         alert('Shutting down... (not really)');
     }; 
+
+    // --- KEYBOARD SHORTCUTS ---
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const toolButtonsArr = Array.from(document.querySelectorAll('.tool-button'));
+        const toolOrder = ['hammer', 'machine-gun', 'stamp'];
+        let currentToolIndex = toolOrder.indexOf(currentTool);
+        switch (e.key) {
+            case '1':
+                selectTool('hammer');
+                break;
+            case '2':
+                selectTool('machine-gun');
+                break;
+            case '3':
+                selectTool('stamp');
+                break;
+            case 'c':
+            case 'C':
+                resetDesktop();
+                break;
+            case '-':
+                // Previous weapon
+                if (currentToolIndex > 0) {
+                    selectTool(toolOrder[currentToolIndex - 1]);
+                }
+                break;
+            case '=':
+            case '+':
+                // Next weapon
+                if (currentToolIndex < toolOrder.length - 1) {
+                    selectTool(toolOrder[currentToolIndex + 1]);
+                }
+                break;
+            case ';':
+                // Volume down
+                if (window.destructionVolume > 0.05) {
+                    window.destructionVolume = Math.max(0, window.destructionVolume - 0.05);
+                    if (volumeSlider) volumeSlider.value = window.destructionVolume;
+                }
+                break;
+            case "'":
+                // Volume up
+                if (window.destructionVolume < 1) {
+                    window.destructionVolume = Math.min(1, window.destructionVolume + 0.05);
+                    if (volumeSlider) volumeSlider.value = window.destructionVolume;
+                }
+                break;
+        }
+    });
+
+    function selectTool(toolName) {
+        const btn = document.querySelector(`.tool-button[data-tool="${toolName}"]`);
+        if (btn) btn.click();
+    }
+
+    // --- README FILE ON DESKTOP ---
+    function createReadmeOnDesktop() {
+        const desktopGrid = document.querySelector('.desktop-grid');
+        if (!desktopGrid) return;
+        // Prevent duplicate README
+        if (document.getElementById('readme-desktop-shortcuts')) return;
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'desktop-icon';
+        iconDiv.id = 'readme-desktop-shortcuts';
+        iconDiv.innerHTML = `
+            <img src="assets/icons/help.png" class="icon-image" alt="README" style="max-width: 32px; max-height: 32px; object-fit: contain;">
+            <div class="icon-label">README.txt</div>
+        `;
+        iconDiv.onclick = function() {
+            openReadmeWindow();
+        };
+        desktopGrid.appendChild(iconDiv);
+    }
+
+    function openReadmeWindow() {
+        const windowId = 'window-readme-shortcuts';
+        if (document.getElementById(windowId)) return;
+        const windowDiv = document.createElement('div');
+        windowDiv.className = 'win95-window';
+        windowDiv.id = windowId;
+        windowDiv.style.position = 'absolute';
+        windowDiv.style.top = '120px';
+        windowDiv.style.left = '220px';
+        windowDiv.style.width = '420px';
+        windowDiv.style.height = '340px';
+        windowDiv.style.zIndex = '100';
+        windowDiv.innerHTML = `
+            <div class="win95-title-bar">
+                <span>README.txt - Key Bindings</span>
+                <div class="win95-controls">
+                    <button class="win95-btn" onclick="minimizeWindow('${windowId}')">_</button>
+                    <button class="win95-btn" onclick="maximizeWindow('${windowId}')">□</button>
+                    <button class="win95-btn" onclick="closeWindow('${windowId}')">×</button>
+                </div>
+            </div>
+            <div class="win95-window-body" style="height: calc(100% - 22px); overflow: auto; padding: 10px; font-family: monospace; font-size: 14px;">
+                <b>Desktop Destroyer Key Bindings</b><br><br>
+                <table style="width:100%; border-collapse: collapse;">
+                  <tr><th style='text-align:left;'>Key</th><th style='text-align:left;'>Function</th></tr>
+                  <tr><td>Mouse</td><td>Fire weapon</td></tr>
+                  <tr><td>1</td><td>Hammer</td></tr>
+                  <tr><td>2</td><td>Machine gun</td></tr>
+                  <tr><td>3</td><td>Stamp</td></tr>
+                  <tr><td>C</td><td>Clear screen</td></tr>
+                  <tr><td>-</td><td>Previous weapon</td></tr>
+                  <tr><td>=</td><td>Next weapon</td></tr>
+                  <tr><td>;</td><td>Volume down</td></tr>
+                  <tr><td>'</td><td>Volume up</td></tr>
+                </table>
+            </div>
+        `;
+        document.getElementById('windows-container').appendChild(windowDiv);
+        openWindows.push(windowId);
+        makeWindowDraggable(windowDiv);
+        bringWindowToFront(windowDiv);
+    }
+
+    // Create the README icon on desktop after DOMContentLoaded
+    createReadmeOnDesktop();
 }); 
 
 console.log('Script loaded successfully');
