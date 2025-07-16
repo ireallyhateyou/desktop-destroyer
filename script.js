@@ -115,7 +115,7 @@ function getWindowContent(windowType) {
         },
         'network-neighborhood': {
             title: 'Network Neighborhood',
-            content: `<div style='padding:10px;'><h3>Network Neighborhood</h3><p>uhhhhhhh</p></div>`
+            content: `<div style='padding:10px;'><h3>Network Neighborhood</h3><p>"Neighborhood" you say...</p></div>`
         },
         'inbox': {
             title: 'Inbox',
@@ -326,8 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function setZapperCursorActive(active) {
         if (active) {
             customCursor.style.display = 'block';
-            customCursor.style.width = '120px';
-            customCursor.style.height = '120px';
+            customCursor.style.width = '180px';
+            customCursor.style.height = '180px';
             customCursor.innerHTML = `<img src="${ZAPPER_IDLE}" style="width:100%;height:100%;object-fit:contain;">`;
             desktop.style.cursor = 'none';
         } else {
@@ -535,13 +535,23 @@ document.addEventListener('DOMContentLoaded', function() {
             zapperEffectImg.style.position = 'fixed';
             zapperEffectImg.style.pointerEvents = 'none';
             zapperEffectImg.style.zIndex = '100000';
-            zapperEffectImg.style.width = '48px';
-            zapperEffectImg.style.height = '48px';
+            zapperEffectImg.style.transform = 'scale(0.5)';
+            zapperEffectImg.style.display = 'none';
             document.body.appendChild(zapperEffectImg);
         }
-        // Position at top-left of custom cursor
-        zapperEffectImg.style.left = (x - 60) + 'px';
-        zapperEffectImg.style.top = (y - 60) + 'px';
+        // Align to top-left of zapper sprite image inside customCursor
+        const cursorRect = customCursor.getBoundingClientRect();
+        const zapperImg = customCursor.querySelector('img');
+        let offsetLeft = 0;
+        let offsetTop = 0;
+        if (zapperImg && currentTool === 'zapper') {
+            // If the zapper image is smaller or offset inside the customCursor, get its offset
+            const imgRect = zapperImg.getBoundingClientRect();
+            offsetLeft = imgRect.left - cursorRect.left;
+            offsetTop = imgRect.top - cursorRect.top;
+        }
+        zapperEffectImg.style.left = (cursorRect.left + offsetLeft - 50 - 10 - 5) + 'px';
+        zapperEffectImg.style.top = (cursorRect.top + offsetTop - 50 - 10 - 5) + 'px';
         // Set image source based on toggle
         zapperEffectImg.src = zapperEffectToggle ? 'assets/zap2.png' : 'assets/zap1.png';
         zapperEffectImg.style.display = 'block';
@@ -595,8 +605,8 @@ document.addEventListener('DOMContentLoaded', function() {
             lastCursorY = e.clientY;
             sprayX = e.clientX;
             sprayY = e.clientY;
-            // Update zapper effect image position
-            updateZapperEffectImg(e.clientX, e.clientY);
+            // Do NOT show zapper effect image on mousemove
+            hideZapperEffectImg();
         } else {
             hideZapperEffectImg();
         }
@@ -727,6 +737,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }, 50);
+            // Toggle and update effect image immediately on click
+            zapperEffectToggle = !zapperEffectToggle;
+            updateZapperEffectImg(e.clientX, e.clientY);
         }
     });
     desktop.addEventListener('mouseup', function(e) {
