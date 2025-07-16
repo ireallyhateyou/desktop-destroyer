@@ -42,6 +42,11 @@ const MACHINE_GUN_IDLE = 'assets/machine gun idle.png';
 const MACHINE_GUN_CLICK = 'assets/machine gun click1.png';
 const MACHINE_GUN_CLICK2 = 'assets/machine gun click2.png';
 
+// Add zapper tool constants
+const ZAPPER_IDLE = 'assets/zapper idle.png';
+const ZAPPER_CLICK = 'assets/zapper click1.png';
+const ZAPPER_CLICK2 = 'assets/zapper click2.png';
+
 // Glass break damage system
 const GLASS_BREAK_FRAME_WIDTH = 150;
 const MAX_DAMAGE_LEVEL = 5; // 6 frames total (0-5)
@@ -318,6 +323,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function setZapperCursorActive(active) {
+        if (active) {
+            customCursor.style.display = 'block';
+            customCursor.style.width = '120px';
+            customCursor.style.height = '120px';
+            customCursor.innerHTML = `<img src="${ZAPPER_IDLE}" style="width:100%;height:100%;object-fit:contain;">`;
+            desktop.style.cursor = 'none';
+        } else {
+            desktop.style.cursor = '';
+            customCursor.style.display = 'none';
+            customCursor.innerHTML = '';
+        }
+    }
+
     // Get damage level at specific coordinates
     function getDamageLevel(x, y) {
         // For compatibility, return the damage of the last break at this location
@@ -378,11 +397,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentTool = null;
                 setHammerCursorActive(false);
                 setStampCursorActive(false);
-                setMachineGunCursorActive(false); // Deactivate machine gun
+                setMachineGunCursorActive(false);
+                setZapperCursorActive(false);
                 // Reset button images to idle state
                 const hammerBtn = document.querySelector('[data-tool="hammer"]');
                 const stampBtn = document.querySelector('[data-tool="stamp"]');
                 const machineGunBtn = document.querySelector('[data-tool="machine-gun"]');
+                const zapperBtn = document.querySelector('[data-tool="zapper"]');
                 if (hammerBtn) {
                     const hammerImg = hammerBtn.querySelector('img');
                     if (hammerImg) hammerImg.src = HAMMER_IDLE;
@@ -394,6 +415,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (machineGunBtn) {
                     const machineGunImg = machineGunBtn.querySelector('img');
                     if (machineGunImg) machineGunImg.src = MACHINE_GUN_IDLE;
+                }
+                if (zapperBtn) {
+                    const zapperImg = zapperBtn.querySelector('img');
+                    if (zapperImg) zapperImg.src = ZAPPER_IDLE;
                 }
                 return;
             }
@@ -428,6 +453,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     stampSprayInterval = null;
                 }
             }
+            if (isZapperSpraying) {
+                isZapperSpraying = false;
+                if (zapperSprayInterval) {
+                    clearInterval(zapperSprayInterval);
+                    zapperSprayInterval = null;
+                }
+                if (zapperImageInterval) {
+                    clearInterval(zapperImageInterval);
+                    zapperImageInterval = null;
+                }
+            }
             
             // Change cursor based on tool
             if (currentTool === 'hammer') {
@@ -445,10 +481,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update button image to click state
                 const machineGunImg = this.querySelector('img');
                 if (machineGunImg) machineGunImg.src = MACHINE_GUN_CLICK;
+            } else if (currentTool === 'zapper') {
+                setZapperCursorActive(true);
+                // Update button image to click state
+                const zapperImg = this.querySelector('img');
+                if (zapperImg) zapperImg.src = ZAPPER_CLICK;
             } else {
                 setHammerCursorActive(false);
                 setStampCursorActive(false);
                 setMachineGunCursorActive(false);
+                setZapperCursorActive(false);
                 desktop.style.cursor = 'crosshair';
             }
         });
@@ -476,6 +518,39 @@ document.addEventListener('DOMContentLoaded', function() {
     let isStampSpraying = false;
     let hammerSprayInterval = null;
     let stampSprayInterval = null;
+
+    // Add zapper spraying variables
+    let isZapperSpraying = false;
+    let zapperSprayInterval = null;
+    let zapperImageInterval = null;
+
+    // Add zapper effect image logic
+    let zapperEffectImg = null;
+    let zapperEffectToggle = false;
+
+    function updateZapperEffectImg(x, y) {
+        if (!zapperEffectImg) {
+            zapperEffectImg = document.createElement('img');
+            zapperEffectImg.className = 'zapper-effect-img';
+            zapperEffectImg.style.position = 'fixed';
+            zapperEffectImg.style.pointerEvents = 'none';
+            zapperEffectImg.style.zIndex = '100000';
+            zapperEffectImg.style.width = '48px';
+            zapperEffectImg.style.height = '48px';
+            document.body.appendChild(zapperEffectImg);
+        }
+        // Position at top-left of custom cursor
+        zapperEffectImg.style.left = (x - 60) + 'px';
+        zapperEffectImg.style.top = (y - 60) + 'px';
+        // Set image source based on toggle
+        zapperEffectImg.src = zapperEffectToggle ? 'assets/zap2.png' : 'assets/zap1.png';
+        zapperEffectImg.style.display = 'block';
+    }
+    function hideZapperEffectImg() {
+        if (zapperEffectImg) {
+            zapperEffectImg.style.display = 'none';
+        }
+    }
 
     desktop.addEventListener('mousemove', function(e) {
         if (currentTool === 'hammer' && customCursor.style.display === 'block') {
@@ -511,6 +586,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update spray position
             sprayX = e.clientX;
             sprayY = e.clientY;
+        } else if (currentTool === 'zapper' && customCursor.style.display === 'block') {
+            const offsetX = 60;
+            const offsetY = 60;
+            customCursor.style.left = (e.clientX - offsetX) + 'px';
+            customCursor.style.top = (e.clientY - offsetY) + 'px';
+            lastCursorX = e.clientX;
+            lastCursorY = e.clientY;
+            sprayX = e.clientX;
+            sprayY = e.clientY;
+            // Update zapper effect image position
+            updateZapperEffectImg(e.clientX, e.clientY);
+        } else {
+            hideZapperEffectImg();
         }
     });
 
@@ -521,12 +609,17 @@ document.addEventListener('DOMContentLoaded', function() {
             setStampCursorActive(true);
         } else if (currentTool === 'machine-gun') {
             setMachineGunCursorActive(true);
+        } else if (currentTool === 'zapper') {
+            setZapperCursorActive(true);
+            updateZapperEffectImg(lastCursorX, lastCursorY);
         }
     });
     desktop.addEventListener('mouseleave', function(e) {
         setHammerCursorActive(false);
         setStampCursorActive(false);
         setMachineGunCursorActive(false);
+        setZapperCursorActive(false);
+        hideZapperEffectImg();
     });
 
     desktop.addEventListener('mousedown', function(e) {
@@ -603,6 +696,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }, 50); // Switch image every 50ms
+        } else if (currentTool === 'zapper') {
+            customCursor.innerHTML = `<img src="${ZAPPER_CLICK}" style="width:auto;height:auto;display:block;">`;
+            // Start spraying zapper hits at current mouse position
+            isZapperSpraying = true;
+            sprayX = e.clientX;
+            sprayY = e.clientY;
+            zapperSprayInterval = setInterval(() => {
+                if (isZapperSpraying) {
+                    // Switch to click image when creating effect
+                    const zapperImg = customCursor.querySelector('img');
+                    if (zapperImg) {
+                        zapperImg.src = ZAPPER_CLICK;
+                    }
+                    zapperEffectToggle = !zapperEffectToggle;
+                    updateZapperEffectImg(sprayX, sprayY);
+                    zapperDestroy(sprayX, sprayY);
+                    setTimeout(() => {
+                        if (zapperImg && isZapperSpraying) {
+                            zapperImg.src = ZAPPER_IDLE;
+                        }
+                    }, 50);
+                }
+            }, 100);
+            zapperImageInterval = setInterval(() => {
+                if (isZapperSpraying) {
+                    const zapperImg = customCursor.querySelector('img');
+                    if (zapperImg) {
+                        zapperImg.src = zapperImg.src.includes('click1') ? ZAPPER_CLICK2 : ZAPPER_CLICK;
+                    }
+                }
+            }, 50);
         }
     });
     desktop.addEventListener('mouseup', function(e) {
@@ -647,6 +771,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 machineGunSprayInterval = null;
                 machineGunImageInterval = null;
             }, 50);
+        } else if (currentTool === 'zapper') {
+            customCursor.innerHTML = `<img src="${ZAPPER_IDLE}" style="width:auto;height:auto;display:block;">`;
+            // Stop spraying zapper hits
+            isZapperSpraying = false;
+            if (zapperSprayInterval) {
+                clearInterval(zapperSprayInterval);
+                zapperSprayInterval = null;
+            }
+            if (zapperImageInterval) {
+                clearInterval(zapperImageInterval);
+                zapperImageInterval = null;
+            }
+            setTimeout(() => {
+                isZapperSpraying = false;
+                zapperSprayInterval = null;
+                zapperImageInterval = null;
+            }, 50);
+            hideZapperEffectImg();
         }
     });
 
@@ -664,6 +806,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         if (currentTool === 'stamp' && (isStampSpraying || stampSprayInterval)) {
+            return;
+        }
+        if (currentTool === 'zapper' && (isZapperSpraying || zapperSprayInterval)) {
             return;
         }
         
@@ -694,6 +839,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'machine-gun':
                 machineGunDestroy(x, y);
+                break;
+            case 'zapper':
+                zapperDestroy(x, y);
                 break;
         }
         destructionCount++;
@@ -1019,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetDesktop() {
         // Remove all destruction effects
-        document.querySelectorAll('.destruction-particle, .crack, .hole, .fire-particle, .spark, .glass-break-damage, .stamp-effect, .machine-gun-hole').forEach(el => {
+        document.querySelectorAll('.destruction-particle, .crack, .hole, .fire-particle, .spark, .glass-break-damage, .stamp-effect, .machine-gun-hole, .zapper-zap').forEach(el => {
             // Clear any ongoing animations before removing
             if (el._animationInterval) {
                 clearInterval(el._animationInterval);
@@ -1082,11 +1230,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 stampSprayInterval = null;
             }
         }
+        if (isZapperSpraying) {
+            isZapperSpraying = false;
+            if (zapperSprayInterval) {
+                clearInterval(zapperSprayInterval);
+                zapperSprayInterval = null;
+            }
+            if (zapperImageInterval) {
+                clearInterval(zapperImageInterval);
+                zapperImageInterval = null;
+            }
+        }
         
         // Reset cursor to default
         setHammerCursorActive(false);
         setStampCursorActive(false);
         setMachineGunCursorActive(false);
+        setZapperCursorActive(false);
         desktop.style.cursor = 'crosshair';
         
         // Remove active state from all tool buttons
@@ -1315,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         const toolButtonsArr = Array.from(document.querySelectorAll('.tool-button'));
-        const toolOrder = ['hammer', 'machine-gun', 'stamp'];
+        const toolOrder = ['hammer', 'machine-gun', 'stamp', 'zapper'];
         let currentToolIndex = toolOrder.indexOf(currentTool);
         switch (e.key) {
             case '1':
@@ -1326,6 +1486,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case '3':
                 selectTool('stamp');
+                break;
+            case '4':
+                selectTool('zapper');
                 break;
             case 'c':
             case 'C':
@@ -1414,6 +1577,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   <tr><td>1</td><td>Hammer</td></tr>
                   <tr><td>2</td><td>Machine gun</td></tr>
                   <tr><td>3</td><td>Stamp</td></tr>
+                  <tr><td>4</td><td>Zapper</td></tr>
                   <tr><td>C</td><td>Clear screen</td></tr>
                   <tr><td>-</td><td>Previous weapon</td></tr>
                   <tr><td>=</td><td>Next weapon</td></tr>
@@ -1435,3 +1599,8 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log('Script loaded successfully');
 window.openWindow = openWindow;
 console.log('openWindow function is now globally accessible'); 
+
+// Remove the zapperDestroy function's visual effect
+function zapperDestroy(x, y) {
+    // No visual effect
+} 
