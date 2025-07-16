@@ -39,7 +39,8 @@ const STAMP_CLICK = 'assets/stamp click.png';
 
 // Add machine gun tool constants
 const MACHINE_GUN_IDLE = 'assets/machine gun idle.png';
-const MACHINE_GUN_CLICK = 'assets/machine gun click.png';
+const MACHINE_GUN_CLICK = 'assets/machine gun click1.png';
+const MACHINE_GUN_CLICK2 = 'assets/machine gun click2.png';
 
 // Glass break damage system
 const GLASS_BREAK_FRAME_WIDTH = 150;
@@ -401,12 +402,30 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             currentTool = this.dataset.tool;
             
-            // Stop any ongoing machine gun spray when switching tools
+            // Stop any ongoing spraying when switching tools
             if (isMachineGunSpraying) {
                 isMachineGunSpraying = false;
                 if (machineGunSprayInterval) {
                     clearInterval(machineGunSprayInterval);
                     machineGunSprayInterval = null;
+                }
+                if (machineGunImageInterval) {
+                    clearInterval(machineGunImageInterval);
+                    machineGunImageInterval = null;
+                }
+            }
+            if (isHammerSpraying) {
+                isHammerSpraying = false;
+                if (hammerSprayInterval) {
+                    clearInterval(hammerSprayInterval);
+                    hammerSprayInterval = null;
+                }
+            }
+            if (isStampSpraying) {
+                isStampSpraying = false;
+                if (stampSprayInterval) {
+                    clearInterval(stampSprayInterval);
+                    stampSprayInterval = null;
                 }
             }
             
@@ -449,7 +468,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add machine gun spraying variables
     let isMachineGunSpraying = false;
     let machineGunSprayInterval = null;
+    let machineGunImageInterval = null;
     let sprayX = 0, sprayY = 0; // Track current mouse position for spraying
+    
+    // Add hammer and stamp spraying variables
+    let isHammerSpraying = false;
+    let isStampSpraying = false;
+    let hammerSprayInterval = null;
+    let stampSprayInterval = null;
 
     desktop.addEventListener('mousemove', function(e) {
         if (currentTool === 'hammer' && customCursor.style.display === 'block') {
@@ -460,6 +486,9 @@ document.addEventListener('DOMContentLoaded', function() {
             customCursor.style.top = (e.clientY - offsetY) + 'px';
             lastCursorX = e.clientX;
             lastCursorY = e.clientY;
+            // Update spray position
+            sprayX = e.clientX;
+            sprayY = e.clientY;
         } else if (currentTool === 'stamp' && customCursor.style.display === 'block') {
             // Offset for stamp cursor 
             const offsetX = 48; 
@@ -468,6 +497,9 @@ document.addEventListener('DOMContentLoaded', function() {
             customCursor.style.top = (e.clientY - offsetY) + 'px';
             lastCursorX = e.clientX;
             lastCursorY = e.clientY;
+            // Update spray position
+            sprayX = e.clientX;
+            sprayY = e.clientY;
         } else if (currentTool === 'machine-gun' && customCursor.style.display === 'block') {
             // Offset for machine gun cursor
             const offsetX = 60;
@@ -500,26 +532,104 @@ document.addEventListener('DOMContentLoaded', function() {
     desktop.addEventListener('mousedown', function(e) {
         if (currentTool === 'hammer') {
             customCursor.innerHTML = `<img src="${HAMMER_CLICK}" style="width:auto;height:auto;display:block;">`;
+            // Start spraying hammer hits at current mouse position
+            isHammerSpraying = true;
+            sprayX = e.clientX;
+            sprayY = e.clientY;
+            hammerSprayInterval = setInterval(() => {
+                if (isHammerSpraying) {
+                    // Switch to click image when creating effect
+                    const hammerImg = customCursor.querySelector('img');
+                    if (hammerImg) {
+                        hammerImg.src = HAMMER_CLICK;
+                    }
+                    
+                    hammerDestroy(sprayX, sprayY);
+                    
+                    // Switch back to idle after a short delay
+                    setTimeout(() => {
+                        if (hammerImg && isHammerSpraying) {
+                            hammerImg.src = HAMMER_IDLE;
+                        }
+                    }, 50);
+                }
+            }, 150); // Spray a hammer hit every 150ms
         } else if (currentTool === 'stamp') {
             customCursor.innerHTML = `<img src="${STAMP_CLICK}" style="width:auto;height:auto;display:block;">`;
+            // Start spraying stamp hits at current mouse position
+            isStampSpraying = true;
+            sprayX = e.clientX;
+            sprayY = e.clientY;
+            stampSprayInterval = setInterval(() => {
+                if (isStampSpraying) {
+                    // Switch to click image when creating effect
+                    const stampImg = customCursor.querySelector('img');
+                    if (stampImg) {
+                        stampImg.src = STAMP_CLICK;
+                    }
+                    
+                    stampDestroy(sprayX, sprayY);
+                    
+                    // Switch back to idle after a short delay
+                    setTimeout(() => {
+                        if (stampImg && isStampSpraying) {
+                            stampImg.src = STAMP_IDLE;
+                        }
+                    }, 50);
+                }
+            }, 100); // Spray a stamp hit every 100ms
         } else if (currentTool === 'machine-gun') {
             customCursor.innerHTML = `<img src="${MACHINE_GUN_CLICK}" style="width:auto;height:auto;display:block;">`;
             // Start spraying bullets at current mouse position
             isMachineGunSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
+            console.log('Started machine gun spraying with image:', MACHINE_GUN_CLICK);
             machineGunSprayInterval = setInterval(() => {
                 if (isMachineGunSpraying) {
                     machineGunDestroy(sprayX, sprayY);
                 }
             }, 100); // Spray a bullet every 100ms
+            
+            // Separate interval for image oscillation (slower)
+            machineGunImageInterval = setInterval(() => {
+                if (isMachineGunSpraying) {
+                    // Alternate between click1 and click2 images
+                    const machineGunImg = customCursor.querySelector('img');
+                    if (machineGunImg) {
+                        console.log('Switching machine gun image from:', machineGunImg.src);
+                        machineGunImg.src = machineGunImg.src.includes('click1') ? MACHINE_GUN_CLICK2 : MACHINE_GUN_CLICK;
+                        console.log('Switched to:', machineGunImg.src);
+                    }
+                }
+            }, 50); // Switch image every 50ms
         }
     });
     desktop.addEventListener('mouseup', function(e) {
         if (currentTool === 'hammer') {
             customCursor.innerHTML = `<img src="${HAMMER_IDLE}" style="width:auto;height:auto;display:block;">`;
+            // Stop spraying hammer hits
+            isHammerSpraying = false;
+            if (hammerSprayInterval) {
+                clearInterval(hammerSprayInterval);
+                hammerSprayInterval = null;
+            }
+            setTimeout(() => {
+                isHammerSpraying = false;
+                hammerSprayInterval = null;
+            }, 50);
         } else if (currentTool === 'stamp') {
             customCursor.innerHTML = `<img src="${STAMP_IDLE}" style="width:auto;height:auto;display:block;">`;
+            // Stop spraying stamp hits
+            isStampSpraying = false;
+            if (stampSprayInterval) {
+                clearInterval(stampSprayInterval);
+                stampSprayInterval = null;
+            }
+            setTimeout(() => {
+                isStampSpraying = false;
+                stampSprayInterval = null;
+            }, 50);
         } else if (currentTool === 'machine-gun') {
             customCursor.innerHTML = `<img src="${MACHINE_GUN_IDLE}" style="width:auto;height:auto;display:block;">`;
             // Stop spraying bullets
@@ -528,9 +638,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(machineGunSprayInterval);
                 machineGunSprayInterval = null;
             }
+            if (machineGunImageInterval) {
+                clearInterval(machineGunImageInterval);
+                machineGunImageInterval = null;
+            }
             setTimeout(() => {
                 isMachineGunSpraying = false;
                 machineGunSprayInterval = null;
+                machineGunImageInterval = null;
             }, 50);
         }
     });
@@ -541,8 +656,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('tool-button') || e.target.closest('.toolbar')) {
             return;
         }
-        // Don't trigger single click for machine gun if we're spraying or if we just stopped spraying
+        // Don't trigger single click if we're spraying or if we just stopped spraying
         if (currentTool === 'machine-gun' && (isMachineGunSpraying || machineGunSprayInterval)) {
+            return;
+        }
+        if (currentTool === 'hammer' && (isHammerSpraying || hammerSprayInterval)) {
+            return;
+        }
+        if (currentTool === 'stamp' && (isStampSpraying || stampSprayInterval)) {
             return;
         }
         
@@ -931,6 +1052,47 @@ document.addEventListener('DOMContentLoaded', function() {
         
         destructionCount = 0;
         gameState = { elementsDestroyed: [], cracks: [], holes: [] };
+        
+        // Deselect all tools
+        currentTool = null;
+        
+        // Stop any ongoing spraying
+        if (isMachineGunSpraying) {
+            isMachineGunSpraying = false;
+            if (machineGunSprayInterval) {
+                clearInterval(machineGunSprayInterval);
+                machineGunSprayInterval = null;
+            }
+            if (machineGunImageInterval) {
+                clearInterval(machineGunImageInterval);
+                machineGunImageInterval = null;
+            }
+        }
+        if (isHammerSpraying) {
+            isHammerSpraying = false;
+            if (hammerSprayInterval) {
+                clearInterval(hammerSprayInterval);
+                hammerSprayInterval = null;
+            }
+        }
+        if (isStampSpraying) {
+            isStampSpraying = false;
+            if (stampSprayInterval) {
+                clearInterval(stampSprayInterval);
+                stampSprayInterval = null;
+            }
+        }
+        
+        // Reset cursor to default
+        setHammerCursorActive(false);
+        setStampCursorActive(false);
+        setMachineGunCursorActive(false);
+        desktop.style.cursor = 'crosshair';
+        
+        // Remove active state from all tool buttons
+        document.querySelectorAll('.tool-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
     }
 
     // Add shake animation
@@ -1237,7 +1399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         windowDiv.style.zIndex = '100';
         windowDiv.innerHTML = `
             <div class="win95-title-bar">
-                <span>README.txt - Key Bindings</span>
+                <span>README.txt</span>
                 <div class="win95-controls">
                     <button class="win95-btn" onclick="minimizeWindow('${windowId}')">_</button>
                     <button class="win95-btn" onclick="maximizeWindow('${windowId}')">□</button>
@@ -1245,7 +1407,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="win95-window-body" style="height: calc(100% - 22px); overflow: auto; padding: 10px; font-family: monospace; font-size: 14px;">
-                <b>Desktop Destroyer Key Bindings</b><br><br>
+                <b>Key Bindings</b><br><br>
                 <table style="width:100%; border-collapse: collapse;">
                   <tr><th style='text-align:left;'>Key</th><th style='text-align:left;'>Function</th></tr>
                   <tr><td>Mouse</td><td>Fire weapon</td></tr>
