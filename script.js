@@ -712,16 +712,16 @@ document.addEventListener('DOMContentLoaded', function() {
             isZapperSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
+            // Show zap hole immediately on click
+            zapperDestroy(sprayX, sprayY);
             zapperSprayInterval = setInterval(() => {
                 if (isZapperSpraying) {
-                    // Switch to click image when creating effect
                     const zapperImg = customCursor.querySelector('img');
                     if (zapperImg) {
                         zapperImg.src = ZAPPER_CLICK;
                     }
                     zapperEffectToggle = !zapperEffectToggle;
                     updateZapperEffectImg(sprayX, sprayY);
-                    zapperDestroy(sprayX, sprayY);
                     setTimeout(() => {
                         if (zapperImg && isZapperSpraying) {
                             zapperImg.src = ZAPPER_IDLE;
@@ -736,8 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         zapperImg.src = zapperImg.src.includes('click1') ? ZAPPER_CLICK2 : ZAPPER_CLICK;
                     }
                 }
-            }, 50);
-            // Toggle and update effect image immediately on click
+            }, 120);
             zapperEffectToggle = !zapperEffectToggle;
             updateZapperEffectImg(e.clientX, e.clientY);
         }
@@ -1615,5 +1614,22 @@ console.log('openWindow function is now globally accessible');
 
 // Remove the zapperDestroy function's visual effect
 function zapperDestroy(x, y) {
-    // No visual effect
+    // Play zap sound
+    const zapAudio = new Audio('assets/zap.ogg');
+    zapAudio.volume = window.destructionVolume || 0.3;
+    zapAudio.play();
+    // Create a zap hole effect at the click location
+    const zapHole = document.createElement('div');
+    zapHole.className = 'zapper-zap-hole';
+    zapHole.style.position = 'absolute';
+    zapHole.style.left = (x - 66) + 'px'; // Offset by +15px
+    zapHole.style.top = (y - 66) + 'px';  // Offset by +15px
+    zapHole.style.width = '55px';
+    zapHole.style.height = '55px';
+    zapHole.style.backgroundImage = 'url("assets/zap hole.png")';
+    zapHole.style.backgroundSize = 'contain';
+    zapHole.style.backgroundRepeat = 'no-repeat';
+    zapHole.style.pointerEvents = 'none';
+    zapHole.style.zIndex = '1300';
+    document.getElementById('desktop').appendChild(zapHole);
 } 

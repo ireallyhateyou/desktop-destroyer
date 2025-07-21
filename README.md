@@ -1,5 +1,7 @@
-# desktop-destroyer
-This is a pure HTML5 web implementation of the famous anti-stress desktop destroyer.
+# Desktop Destroyer
+This is a pure HTML5 web implementation of the famous anti-stress desktop destroyer. Since this is pure HTML5, you can self-host this fine.
+
+![Image](https://i.imgur.com/rkewvTb.png)
 
 # Credit
 I must put credit where credit is due to Miroslav Nemecek for his original Desktop Games. Many of the assets stem from https://github.com/J-Puls/domain-destroyer and they were modified to fit these projects needs.
