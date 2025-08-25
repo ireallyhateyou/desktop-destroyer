@@ -706,3 +706,43 @@ body, main#desktop, #desktop {
   pointer-events: none;
   image-rendering: pixelated;
 } 
+
+/* ===== MINESWEEPER STYLES ===== */
+.minesweeper-cell {
+  transition: all 0.1s ease;
+}
+
+.minesweeper-cell:hover {
+  background: #d4d0c8 !important;
+}
+
+.minesweeper-cell:active {
+  border: 2px inset #c0c0c0 !important;
+}
+
+#minesweeper-grid {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 2px;
+  margin: 0 auto;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff;
+}
+
+#minesweeper-timer,
+#minesweeper-mine-count {
+  background: #000;
+  color: #ff0000;
+  padding: 2px 6px;
+  border: 2px inset #808080;
+  font-family: 'Digital-7', monospace;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Minesweeper window sizing */
+.win95-window[id*="minesweeper"] {
+  width: 400px !important;
+  height: 350px !important;
+  min-width: 400px !important;
+  min-height: 350px !important;
+} 
