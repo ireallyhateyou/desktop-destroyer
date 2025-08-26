@@ -72,7 +72,7 @@ function openWindow(windowType) {
     
     // Set specific size for Minesweeper window
     if (windowType === 'minesweeper') {
-        window.style.width = '400px';
+        window.style.width = '350px';
         window.style.height = '350px';
     } else {
         window.style.width = '400px';
@@ -221,7 +221,7 @@ function getWindowContent(windowType) {
                             <span id="minesweeper-mine-count" style="font-family: monospace; font-size: 14px;">10</span>
                         </div>
                     </div>
-                    <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(9, 20px); grid-template-rows: repeat(9, 20px); gap: 1px; background: #c0c0c0; border: 2px outset #c0c0c0; padding: 2px; margin: 0 auto;"></div>
+                    <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(9, 25px); grid-template-rows: repeat(9, 25px); gap: 1px; background: #c0c0c0; border: 2px outset #c0c0c0; padding: 2px; margin: 0 auto;"></div>
                 </div>
             `
         },
@@ -1669,6 +1669,30 @@ function zapperDestroy(x, y) {
 
 // ===== MINESWEEPER GAME IMPLEMENTATION =====
 
+// Minesweeper sprite sheet constants
+const SPRITE_SIZE = 25;
+const SPRITE_COUNT = 16;
+const SPRITE_SHEET = 'assets/minesweeper/blocks.png';
+
+// Sprite indices (from top to bottom in the 40x640 image)
+const SPRITES = {
+    UNCLICKED: 0,      // block (unclicked closed, normal default)
+    FLAGGED: 1,        // block (flagged, closed)
+    QUESTIONED: 2,     // block (questioned, closed)
+    RED_BOMBED: 3,     // block (red and bombed, open)
+    BOMB_CROSS: 4,     // block (bomb with cross, open)
+    BOMB: 5,           // block (bomb, open)
+    QUESTIONED_OPEN: 6, // block (questioned, open)
+    NUMBER_7: 7,       // blocks representing numbers 7 to 1
+    NUMBER_6: 8,
+    NUMBER_5: 9,
+    NUMBER_4: 10,
+    NUMBER_3: 11,
+    NUMBER_2: 12,
+    NUMBER_1: 13,
+    EMPTY: 14          // empty block
+};
+
 // Minesweeper game state
 let minesweeperGame = {
     grid: [],
@@ -1679,8 +1703,66 @@ let minesweeperGame = {
     mineCount: 10,
     timer: 0,
     timerInterval: null,
-    firstClick: true
+    firstClick: true,
+    spriteSheet: null
 };
+
+// Load the sprite sheet
+function loadMinesweeperSprites() {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            minesweeperGame.spriteSheet = img;
+            resolve(img);
+        };
+        img.onerror = reject;
+        img.src = SPRITE_SHEET;
+    });
+}
+
+// Render a sprite from the sprite sheet
+function renderSprite(cell, spriteIndex) {
+    // Clear any existing content and styles
+    cell.innerHTML = '';
+    cell.style.backgroundImage = '';
+    cell.style.backgroundSize = '';
+    cell.style.backgroundPosition = '';
+    cell.style.backgroundRepeat = '';
+    cell.style.animation = 'none';
+    cell.style.transition = 'none';
+    
+    // Set the sprite sheet as background
+    cell.style.backgroundImage = `url(${SPRITE_SHEET})`;
+    
+    // The original sprite sheet is 40x640 (16 sprites of 40x40 each)
+    // We want to display it in 25x25 cells
+    // So we need to scale the entire sheet proportionally
+    const originalSpriteSize = 40;
+    const originalSheetHeight = 640;
+    const scaleFactor = SPRITE_SIZE / originalSpriteSize; // 25/40 = 0.625
+    
+    // Scale the entire sprite sheet: 40x640 becomes 25x400
+    const scaledSheetHeight = originalSheetHeight * scaleFactor;
+    cell.style.backgroundSize = `25px ${scaledSheetHeight}px`;
+    
+    // Calculate the Y position in the scaled sheet
+    // Each sprite is now 25px tall, so position = spriteIndex * 25
+    const y = spriteIndex * SPRITE_SIZE;
+    cell.style.backgroundPosition = `0 -${y}px`;
+    
+    cell.style.backgroundRepeat = 'no-repeat';
+    
+    // Debug: log what we're setting
+    console.log(`Setting sprite ${spriteIndex} for cell:`, {
+        backgroundImage: cell.style.backgroundImage,
+        backgroundSize: cell.style.backgroundSize,
+        backgroundPosition: cell.style.backgroundPosition,
+        spriteIndex,
+        y,
+        scaleFactor,
+        scaledSheetHeight
+    });
+}
 
 // Initialize Minesweeper when window opens
 function initializeMinesweeper() {
@@ -1697,12 +1779,22 @@ function initializeMinesweeper() {
         mineCount: 10,
         timer: 0,
         timerInterval: null,
-        firstClick: true
+        firstClick: true,
+        spriteSheet: null
     };
     
-    updateMineCount();
-    updateTimer();
-    createGrid();
+    // Load sprites first, then create grid
+    loadMinesweeperSprites().then(() => {
+        updateMineCount();
+        updateTimer();
+        createGrid();
+    }).catch(error => {
+        console.error('Failed to load Minesweeper sprites:', error);
+        // Fallback to text-based display
+        updateMineCount();
+        updateTimer();
+        createGrid();
+    });
 }
 
 // Create the Minesweeper grid
@@ -1733,18 +1825,16 @@ function createGrid() {
             cell.dataset.row = row;
             cell.dataset.col = col;
             cell.style.cssText = `
-                width: 20px;
-                height: 20px;
-                background: #c0c0c0;
+                width: ${SPRITE_SIZE}px;
+                height: ${SPRITE_SIZE}px;
                 border: 2px outset #c0c0c0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: monospace;
-                font-size: 12px;
-                font-weight: bold;
                 cursor: pointer;
                 user-select: none;
+                animation: none !important;
+                transition: none !important;
             `;
             
             // Left click to reveal
@@ -1756,6 +1846,9 @@ function createGrid() {
             });
             
             gridContainer.appendChild(cell);
+            
+            // Set initial sprite for unclicked cell
+            renderSprite(cell, SPRITES.UNCLICKED);
         }
     }
 }
@@ -1856,30 +1949,34 @@ function revealCell(row, col) {
 function updateCellDisplay(row, col) {
     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
     if (!cell) return;
-    // eventually get rid of the emojis lmao
+    
+    // Use sprites instead of emojis
     if (minesweeperGame.flagged[row][col]) {
-        cell.textContent = '🚩';
-        cell.style.background = '#c0c0c0';
+        renderSprite(cell, SPRITES.FLAGGED);
         cell.style.border = '2px outset #c0c0c0';
     } else if (minesweeperGame.revealed[row][col]) {
         if (minesweeperGame.grid[row][col] === -1) {
-            cell.textContent = '💣';
-            cell.style.background = '#ff0000';
+            renderSprite(cell, SPRITES.RED_BOMBED);
             cell.style.border = '2px inset #c0c0c0';
         } else if (minesweeperGame.grid[row][col] === 0) {
-            cell.textContent = '';
-            cell.style.background = '#c0c0c0';
+            renderSprite(cell, SPRITES.EMPTY);
             cell.style.border = '2px inset #c0c0c0';
         } else {
-            const colors = ['', '#0000ff', '#008200', '#ff0000', '#000084', '#840000', '#008284', '#840084', '#757575'];
-            cell.textContent = minesweeperGame.grid[row][col];
-            cell.style.color = colors[minesweeperGame.grid[row][col]];
-            cell.style.background = '#c0c0c0';
+            // Map numbers to sprite indices (7 to 1)
+            const numberSpriteMap = {
+                7: SPRITES.NUMBER_7,
+                6: SPRITES.NUMBER_6,
+                5: SPRITES.NUMBER_5,
+                4: SPRITES.NUMBER_4,
+                3: SPRITES.NUMBER_3,
+                2: SPRITES.NUMBER_2,
+                1: SPRITES.NUMBER_1
+            };
+            renderSprite(cell, numberSpriteMap[minesweeperGame.grid[row][col]]);
             cell.style.border = '2px inset #c0c0c0';
         }
     } else {
-        cell.textContent = '';
-        cell.style.background = '#c0c0c0';
+        renderSprite(cell, SPRITES.UNCLICKED);
         cell.style.border = '2px outset #c0c0c0';
     }
 }
@@ -1934,12 +2031,20 @@ function gameOver(won) {
         clearInterval(minesweeperGame.timerInterval);
     }
     
-    // Reveal all mines
+    // Reveal all mines and show incorrectly flagged cells
     for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
             if (minesweeperGame.grid[row][col] === -1) {
+                // Show mine
                 minesweeperGame.revealed[row][col] = true;
                 updateCellDisplay(row, col);
+            } else if (minesweeperGame.flagged[row][col]) {
+                // Show incorrectly flagged cell with cross
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (cell) {
+                    renderSprite(cell, SPRITES.BOMB_CROSS);
+                    cell.style.border = '2px inset #c0c0c0';
+                }
             }
         }
     }
@@ -1963,4 +2068,6 @@ function minesweeperNewGame() {
 
 // Make functions globally accessible
 window.minesweeperNewGame = minesweeperNewGame;
-window.initializeMinesweeper = initializeMinesweeper; 
+window.initializeMinesweeper = initializeMinesweeper;
+window.renderSprite = renderSprite;
+window.loadMinesweeperSprites = loadMinesweeperSprites; 

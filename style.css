@@ -709,7 +709,8 @@ body, main#desktop, #desktop {
 
 /* ===== MINESWEEPER STYLES ===== */
 .minesweeper-cell {
-  transition: all 0.1s ease;
+  transition: none !important;
+  animation: none !important;
 }
 
 .minesweeper-cell:hover {
@@ -728,6 +729,12 @@ body, main#desktop, #desktop {
   box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff;
 }
 
+/* Ensure sprites fit properly in cells */
+.minesweeper-cell {
+  background-repeat: no-repeat !important;
+  overflow: hidden !important;
+}
+
 #minesweeper-timer,
 #minesweeper-mine-count {
   background: #000;
@@ -741,8 +748,8 @@ body, main#desktop, #desktop {
 
 /* Minesweeper window sizing */
 .win95-window[id*="minesweeper"] {
-  width: 400px !important;
+  width: 350px !important;
   height: 350px !important;
-  min-width: 400px !important;
+  min-width: 350px !important;
   min-height: 350px !important;
 } 
