@@ -163,6 +163,15 @@ footer.win95-taskbar {
   pointer-events: none;
 }
 
+/* Ensure reset button always shows pointer cursor */
+.toolbar .win95-btn[data-tool="reset"] {
+  cursor: pointer !important;
+}
+
+.toolbar .win95-btn[data-tool="reset"]:hover {
+  cursor: pointer !important;
+}
+
 /* Style for import button */
 .toolbar-import .win95-btn {
   font-size: 11px !important;

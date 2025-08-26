@@ -1288,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setStampCursorActive(false);
         setMachineGunCursorActive(false);
         setZapperCursorActive(false);
-        desktop.style.cursor = 'crosshair';
+        desktop.style.cursor = 'default';
         
         // Remove active state from all tool buttons
         document.querySelectorAll('.tool-button').forEach(btn => {
