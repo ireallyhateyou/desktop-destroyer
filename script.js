@@ -214,6 +214,7 @@ function getWindowContent(windowType) {
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <button class="win95-btn" onclick="minesweeperNewGame()" style="font-size: 11px;">New Game</button>
+                            <div id="minesweeper-smiley" style="width: 24px; height: 24px; cursor: pointer; border: 2px outset #c0c0c0; background-color: #c0c0c0;" onclick="minesweeperNewGame()"></div>
                             <span id="minesweeper-timer" style="font-family: monospace; font-size: 14px;">000</span>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
@@ -1674,6 +1675,11 @@ const SPRITE_SIZE = 25;
 const SPRITE_COUNT = 16;
 const SPRITE_SHEET = 'assets/minesweeper/blocks.png';
 
+// Smiley face sprite sheet constants
+const SMILEY_SIZE = 24; // 48x48 scaled down to 24x24 to fit nicely in header
+const SMILEY_COUNT = 5;
+const SMILEY_SHEET = 'assets/minesweeper/smileys.png';
+
 // Sprite indices (from top to bottom in the 40x640 image)
 const SPRITES = {
     UNCLICKED: 0,      // block (unclicked closed, normal default)
@@ -1693,6 +1699,15 @@ const SPRITES = {
     EMPTY: 14          // empty block
 };
 
+// Smiley face sprite indices (from top to bottom in the 48x240 image)
+const SMILEYS = {
+    HAPPY_OPENED: 0,    // happy (opened)
+    SUNGLASSES: 1,      // sunglasses (unopened)
+    DEAD: 2,            // dead (unopened)
+    OPEN_MOUTH: 3,      // open mouth (unopened)
+    HAPPY_UNOPENED: 4   // happy (unopened)
+};
+
 // Minesweeper game state
 let minesweeperGame = {
     grid: [],
@@ -1704,7 +1719,8 @@ let minesweeperGame = {
     timer: 0,
     timerInterval: null,
     firstClick: true,
-    spriteSheet: null
+    spriteSheet: null,
+    smileySheet: null
 };
 
 // Load the sprite sheet
@@ -1713,10 +1729,81 @@ function loadMinesweeperSprites() {
         const img = new Image();
         img.onload = () => {
             minesweeperGame.spriteSheet = img;
+            console.log('Block sprite sheet loaded successfully:', img.width, 'x', img.height);
             resolve(img);
         };
-        img.onerror = reject;
+        img.onerror = (error) => {
+            console.error('Failed to load block sprite sheet:', error);
+            reject(error);
+        };
         img.src = SPRITE_SHEET;
+    });
+}
+
+// Load the smiley face sprite sheet
+function loadMinesweeperSmileys() {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            minesweeperGame.smileySheet = img;
+            console.log('Smiley face sprite sheet loaded successfully:', img.width, 'x', img.height);
+            resolve(img);
+        };
+        img.onerror = (error) => {
+            console.error('Failed to load smiley face sprite sheet:', error);
+            reject(error);
+        };
+        img.src = SMILEY_SHEET;
+    });
+}
+
+// Render a smiley face from the sprite sheet
+function renderSmiley(spriteIndex) {
+    const smileyElement = document.getElementById('minesweeper-smiley');
+    if (!smileyElement) {
+        console.warn('Smiley element not found, cannot render smiley face');
+        return;
+    }
+    
+    // Clear any existing content and styles
+    smileyElement.innerHTML = '';
+    smileyElement.style.backgroundImage = '';
+    smileyElement.style.backgroundSize = '';
+    smileyElement.style.backgroundPosition = '';
+    smileyElement.style.backgroundRepeat = '';
+    smileyElement.style.animation = 'none';
+    smileyElement.style.transition = 'none';
+    
+    // Set the smiley sheet as background
+    smileyElement.style.backgroundImage = `url(${SMILEY_SHEET})`;
+    
+    // The original smiley sheet is 48x240 (5 sprites of 48x48 each)
+    // We want to display it in 24x24 cells
+    // So we need to scale the entire sheet proportionally
+    const originalSmileySize = 48;
+    const originalSheetHeight = 240;
+    const scaleFactor = SMILEY_SIZE / originalSmileySize; // 24/48 = 0.5
+    
+    // Scale the entire sprite sheet: 48x240 becomes 24x120
+    const scaledSheetHeight = originalSheetHeight * scaleFactor;
+    smileyElement.style.backgroundSize = `${SMILEY_SIZE}px ${scaledSheetHeight}px`;
+    
+    // Calculate the Y position in the scaled sheet
+    // Each sprite is now 24px tall, so position = spriteIndex * 24
+    const y = spriteIndex * SMILEY_SIZE;
+    smileyElement.style.backgroundPosition = `0 -${y}px`;
+    
+    smileyElement.style.backgroundRepeat = 'no-repeat';
+    
+    // Debug: log what we're setting
+    console.log(`Setting smiley ${spriteIndex} (${Object.keys(SMILEYS).find(key => SMILEYS[key] === spriteIndex)}):`, {
+        backgroundImage: smileyElement.style.backgroundImage,
+        backgroundSize: smileyElement.style.backgroundSize,
+        backgroundPosition: smileyElement.style.backgroundPosition,
+        spriteIndex,
+        y,
+        scaleFactor,
+        scaledSheetHeight
     });
 }
 
@@ -1780,20 +1867,28 @@ function initializeMinesweeper() {
         timer: 0,
         timerInterval: null,
         firstClick: true,
-        spriteSheet: null
+        spriteSheet: null,
+        smileySheet: null
     };
     
-    // Load sprites first, then create grid
-    loadMinesweeperSprites().then(() => {
+    // Load both sprite sheets first, then create grid
+    Promise.all([
+        loadMinesweeperSprites(),
+        loadMinesweeperSmileys()
+    ]).then(() => {
         updateMineCount();
         updateTimer();
         createGrid();
+        // Set initial smiley face based on game state
+        updateSmileyFace();
     }).catch(error => {
         console.error('Failed to load Minesweeper sprites:', error);
         // Fallback to text-based display
         updateMineCount();
         updateTimer();
         createGrid();
+        // Set initial smiley face based on game state
+        updateSmileyFace();
     });
 }
 
@@ -1859,6 +1954,9 @@ function handleCellClick(row, col) {
         return;
     }
     
+    // Show open mouth smiley when clicking
+    renderSmiley(SMILEYS.OPEN_MOUTH);
+    
     if (minesweeperGame.firstClick) {
         placeMines(row, col);
         startTimer();
@@ -1873,6 +1971,11 @@ function handleCellClick(row, col) {
     
     revealCell(row, col);
     checkWinCondition();
+    
+    // Update smiley face based on new game state
+    setTimeout(() => {
+        updateSmileyFace();
+    }, 100);
 }
 
 // Handle right click on cell
@@ -1881,9 +1984,17 @@ function handleRightClick(row, col) {
         return;
     }
     
+    // Show open mouth smiley when flagging
+    renderSmiley(SMILEYS.OPEN_MOUTH);
+    
     minesweeperGame.flagged[row][col] = !minesweeperGame.flagged[row][col];
     updateCellDisplay(row, col);
     updateMineCount();
+    
+    // Update smiley face based on new game state
+    setTimeout(() => {
+        updateSmileyFace();
+    }, 100);
 }
 
 // Place mines after first click
@@ -2031,6 +2142,9 @@ function gameOver(won) {
         clearInterval(minesweeperGame.timerInterval);
     }
     
+    // Update smiley face based on game result
+    updateSmileyFace();
+    
     // Reveal all mines and show incorrectly flagged cells
     for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
@@ -2062,12 +2176,30 @@ function gameOver(won) {
 // New game function
 function minesweeperNewGame() {
     initializeMinesweeper();
+    // Reset smiley face based on game state
+    updateSmileyFace();
 }
 
-
+// Update smiley face based on game state
+function updateSmileyFace() {
+    if (minesweeperGame.gameOver) {
+        if (minesweeperGame.gameWon) {
+            renderSmiley(SMILEYS.SUNGLASSES);
+        } else {
+            renderSmiley(SMILEYS.DEAD);
+        }
+    } else if (minesweeperGame.firstClick) {
+        renderSmiley(SMILEYS.HAPPY_UNOPENED);
+    } else {
+        renderSmiley(SMILEYS.HAPPY_OPENED);
+    }
+}
 
 // Make functions globally accessible
 window.minesweeperNewGame = minesweeperNewGame;
 window.initializeMinesweeper = initializeMinesweeper;
 window.renderSprite = renderSprite;
 window.loadMinesweeperSprites = loadMinesweeperSprites; 
+window.loadMinesweeperSmileys = loadMinesweeperSmileys;
+window.renderSmiley = renderSmiley; 
+window.updateSmileyFace = updateSmileyFace;

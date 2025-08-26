@@ -735,6 +735,27 @@ body, main#desktop, #desktop {
   overflow: hidden !important;
 }
 
+/* Smiley face styling */
+#minesweeper-smiley {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  border: 2px outset #c0c0c0;
+  background-color: #c0c0c0;
+  background-repeat: no-repeat !important;
+  overflow: hidden !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+#minesweeper-smiley:hover {
+  border: 2px inset #c0c0c0;
+}
+
+#minesweeper-smiley:active {
+  border: 2px inset #c0c0c0;
+}
+
 #minesweeper-timer,
 #minesweeper-mine-count {
   background: #000;
