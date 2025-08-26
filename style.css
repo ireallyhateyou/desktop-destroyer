@@ -746,8 +746,8 @@ body, main#desktop, #desktop {
 
 /* Smiley face styling */
 #minesweeper-smiley {
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 48px;
   cursor: pointer;
   border: 2px outset #c0c0c0;
   background-color: #c0c0c0;
@@ -755,6 +755,8 @@ body, main#desktop, #desktop {
   overflow: hidden !important;
   transition: none !important;
   animation: none !important;
+  background-size: 44px 220px !important;
+  image-rendering: pixelated;
 }
 
 #minesweeper-smiley:hover {
