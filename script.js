@@ -129,7 +129,7 @@ function getWindowContent(windowType) {
         },
         'network-neighborhood': {
             title: 'Network Neighborhood',
-            content: `<div style='padding:10px;'><h3>Network Neighborhood</h3><p>"Neighborhood" you say...</p></div>`
+            content: `<div style='padding:10px;'><p style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-style: italic;">"Neighborhood" you say...</p></div>`
         },
         'inbox': {
             title: 'Inbox',
@@ -150,7 +150,6 @@ function getWindowContent(windowType) {
             content: `<div style='padding:10px;'><h3>Online Services</h3><p>Internet services coming soon!</p></div>`
         },
         
-        // Start Menu Items
         'documents': {
             title: 'Documents',
             content: `
@@ -222,7 +221,7 @@ function getWindowContent(windowType) {
                             <span id="minesweeper-mine-count" style="font-family: monospace; font-size: 14px;">10</span>
                         </div>
                     </div>
-                    <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(9, 25px); grid-template-rows: repeat(9, 25px); gap: 1px; background: #c0c0c0; border: 2px outset #c0c0c0; padding: 2px; margin: 0 auto;"></div>
+                    <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(9, 25px); grid-template-rows: repeat(9, 25px); gap: 1px; background: #c0c0c0; border: 2px outset #c0c0c0; padding: 2px; margin: 0 auto; width: fit-content;"></div>
                 </div>
             `
         },
@@ -337,7 +336,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add setMachineGunCursorActive function
     function setMachineGunCursorActive(active) {
         if (active) {
             desktop.style.cursor = 'none';
@@ -2187,6 +2185,10 @@ function gameOver(won) {
             alert('Congratulations! You won! 🎉');
         } else {
             alert('Game Over! 💣');
+            // Show "Blown Up" achievement when player loses
+            setTimeout(() => {
+                showAchievementPopup("Blown Up");
+            }, 500);
         }
     }, 100);
 }
@@ -2248,3 +2250,42 @@ window.testSmileyRendering = function() {
         setTimeout(() => {}, 500);
     }
 };
+
+// Achievement popup functions
+function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
+    const popup = document.getElementById('achievementPopup');
+    const titleElement = popup.querySelector('.achievement-content p');
+    
+    // Update the achievement title
+    titleElement.textContent = achievementTitle;
+    
+    popup.classList.remove('hidden');
+    
+    // Add a small delay to make it feel more natural
+    setTimeout(() => {
+        popup.style.opacity = '1';
+    }, 100);
+}
+
+function closeAchievementPopup() {
+    const popup = document.getElementById('achievementPopup');
+    popup.classList.add('hidden');
+}
+
+// Show achievement popup when Network Neighborhood is opened
+function openWindowWithAchievement(windowId) {
+    openWindow(windowId);
+    
+    // Check if this is the Network Neighborhood window
+    if (windowId === 'network-neighborhood') {
+        // Show achievement popup after a short delay
+        setTimeout(() => {
+            showAchievementPopup("Boulevard of Broken Dreams");
+        }, 500);
+    }
+}
+
+// Make achievement functions globally accessible
+window.showAchievementPopup = showAchievementPopup;
+window.closeAchievementPopup = closeAchievementPopup;
+window.openWindowWithAchievement = openWindowWithAchievement;

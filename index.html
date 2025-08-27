@@ -14,7 +14,7 @@
         <img src="assets/icons/my computer.png" class="icon-image" alt="My Computer">
         <div class="icon-label">My Computer</div>
       </div>
-      <div class="desktop-icon" onclick="openWindow('network-neighborhood')">
+      <div class="desktop-icon" onclick="openWindowWithAchievement('network-neighborhood')">
         <img src="assets/icons/network neighborhood.png" class="icon-image" alt="Network Neighborhood">
         <div class="icon-label">Network Neighborhood</div>
       </div>
@@ -97,6 +97,21 @@
   </footer>
   <script src="script.js"></script>
   <div id="custom-cursor" style="display:none; position:fixed; pointer-events:none; z-index:99999;"></div>
+
+  <div id="achievementPopup" class="achievement-popup hidden">
+    <div class="achievement-header">
+      <img src="assets/icons/help.png" alt="Achievement" style="width: 16px; height: 16px; margin-right: 8px;">
+      <span>Achievement Unlocked!</span>
+      <button class="close-btn" onclick="closeAchievementPopup()">×</button>
+    </div>
+    <div class="achievement-content">
+      <p>Boulevard of Broken Dreams</p>
+    </div>
+    <div class="achievement-footer">
+      <button class="win95-btn" onclick="closeAchievementPopup()">OK</button>
+    </div>
+  </div>
+
   <div id="shutdown-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; flex-direction:column; justify-content:center; align-items:center;">
     <span style="color:orange; font-size:5vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000; line-height:1.1; letter-spacing:2px;">
       It's now safe to turn off

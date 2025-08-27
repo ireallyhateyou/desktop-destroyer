@@ -99,6 +99,88 @@ footer.win95-taskbar {
   color: inherit;
 }
 
+/* Achievement Popup Styles */
+.achievement-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 100000;
+  font-family: var(--font);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.achievement-popup.hidden {
+  display: none;
+}
+
+.achievement-header {
+  background: #000080;
+  color: white;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #c0c0c0;
+  cursor: default;
+}
+
+.close-btn {
+  background: #c0c0c0;
+  border: 1px outset #c0c0c0;
+  color: #000;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.close-btn:hover {
+  background: #d4d4d4;
+}
+
+.close-btn:active {
+  border: 1px inset #c0c0c0;
+}
+
+.achievement-content {
+  padding: 20px;
+  text-align: center;
+  background: #c0c0c0;
+}
+
+.achievement-content p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+.achievement-footer {
+  padding: 12px 20px;
+  background: #c0c0c0;
+  border-top: 1px solid #808080;
+  text-align: right;
+}
+
+.achievement-footer button {
+  min-width: 40px;
+  padding: 4px 12px;
+  font-size: 11px;
+}
+
 .desktop-icon:hover .icon-label {
   color: white;
 }
