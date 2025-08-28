@@ -106,6 +106,11 @@ function openWindow(windowType) {
             initializeMinesweeper();
         }, 100);
     }
+    
+    // Achievement: First Window Opened
+    if (!achievements.includes("Window Shopper")) {
+        showAchievementPopup("Window Shopper");
+    }
 }
 
 function getWindowContent(windowType) {
@@ -377,7 +382,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set damage level at specific coordinates
     function setDamageLevel(x, y, level) {
-        // For compatibility, set the damage of the last break at this location
         const gridX = Math.floor(x/20)*20;
         const gridY = Math.floor(y/20)*20;
         const locationKey = `${gridX},${gridY}`;
@@ -666,6 +670,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isHammerSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
+            
+            // Achievement: First Hammer Strike
+            if (!achievements.includes("Hammer Time")) {
+                showAchievementPopup("Hammer Time");
+            }
             hammerSprayInterval = setInterval(() => {
                 if (isHammerSpraying) {
                     // Switch to click image when creating effect
@@ -690,6 +699,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isStampSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
+            
+            // Achievement: First Stamp Use
+            if (!achievements.includes("Stamp Collector")) {
+                showAchievementPopup("Stamp Collector");
+            }
             stampSprayInterval = setInterval(() => {
                 if (isStampSpraying) {
                     // Switch to click image when creating effect
@@ -714,7 +728,12 @@ document.addEventListener('DOMContentLoaded', function() {
             isMachineGunSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
-            console.log('Started machine gun spraying with image:', MACHINE_GUN_CLICK);
+            
+            // Achievement: First Machine Gun Use
+            if (!achievements.includes("Rambo Mode")) {
+                showAchievementPopup("Rambo Mode");
+            }
+
             machineGunSprayInterval = setInterval(() => {
                 if (isMachineGunSpraying) {
                     machineGunDestroy(sprayX, sprayY);
@@ -727,9 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Alternate between click1 and click2 images
                     const machineGunImg = customCursor.querySelector('img');
                     if (machineGunImg) {
-                        console.log('Switching machine gun image from:', machineGunImg.src);
                         machineGunImg.src = machineGunImg.src.includes('click1') ? MACHINE_GUN_CLICK2 : MACHINE_GUN_CLICK;
-                        console.log('Switched to:', machineGunImg.src);
                     }
                 }
             }, 50); // Switch image every 50ms
@@ -739,6 +756,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isZapperSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
+            
+            // Achievement: First Zapper Use
+            if (!achievements.includes("Zap Attack")) {
+                showAchievementPopup("Zap Attack");
+            }
             // Show zap hole immediately on click
             zapperDestroy(sprayX, sprayY);
             zapperSprayInterval = setInterval(() => {
@@ -1596,8 +1618,8 @@ document.addEventListener('DOMContentLoaded', function() {
         windowDiv.style.position = 'absolute';
         windowDiv.style.top = '120px';
         windowDiv.style.left = '220px';
-        windowDiv.style.width = '420px';
-        windowDiv.style.height = '340px';
+        windowDiv.style.width = '600px';
+        windowDiv.style.height = '500px';
         windowDiv.style.zIndex = '100';
         windowDiv.innerHTML = `
             <div class="win95-title-bar">
@@ -1609,27 +1631,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="win95-window-body" style="height: calc(100% - 22px); overflow: auto; padding: 10px; font-family: monospace; font-size: 14px;">
-                <b>Key Bindings</b><br><br>
-                <table style="width:100%; border-collapse: collapse;">
-                  <tr><th style='text-align:left;'>Key</th><th style='text-align:left;'>Function</th></tr>
-                  <tr><td>Mouse</td><td>Fire weapon</td></tr>
-                  <tr><td>1</td><td>Hammer</td></tr>
-                  <tr><td>2</td><td>Machine gun</td></tr>
-                  <tr><td>3</td><td>Stamp</td></tr>
-                  <tr><td>4</td><td>Zapper</td></tr>
-                  <tr><td>C</td><td>Clear screen</td></tr>
-                  <tr><td>-</td><td>Previous weapon</td></tr>
-                  <tr><td>=</td><td>Next weapon</td></tr>
-                  <tr><td>;</td><td>Volume down</td></tr>
-                  <tr><td>'</td><td>Volume up</td></tr>
-                </table>
+                <div id="achievements-section" style="margin-bottom: 20px;">
+                    <b>Achievements</b><br><br>
+                    <div id="achievements-list">
+                        <em>No achievements collected yet.</em>
+                    </div>
+                </div>
+                
+                <hr style="margin: 20px 0;">
+                
+                <div style="margin-bottom: 20px;">
+                    <b>Key Bindings</b><br><br>
+                    <table style="width:100%; border-collapse: collapse;">
+                      <tr><th style='text-align:left;'>Key</th><th style='text-align:left;'>Function</th></tr>
+                      <tr><td>Mouse</td><td>Fire weapon</td></tr>
+                      <tr><td>1</td><td>Hammer</td></tr>
+                      <tr><td>2</td><td>Machine gun</td></tr>
+                      <tr><td>3</td><td>Stamp</td></tr>
+                      <tr><td>4</td><td>Zapper</td></tr>
+                      <tr><td>C</td><td>Clear screen</td></tr>
+                      <tr><td>-</td><td>Previous weapon</td></tr>
+                      <tr><td>=</td><td>Next weapon</td></tr>
+                      <tr><td>;</td><td>Volume down</td></tr>
+                      <tr><td>'</td><td>Volume up</td></tr>
+                    </table>
+                </div>
             </div>
         `;
         document.getElementById('windows-container').appendChild(windowDiv);
         openWindows.push(windowId);
         makeWindowDraggable(windowDiv);
         bringWindowToFront(windowDiv);
+        
+        // Update achievements display when window opens
+        updateAchievementsDisplay();
     }
+    
+    // Function to update achievements display in README.txt window
+    function updateAchievementsDisplay() {
+        const achievementsList = document.getElementById('achievements-list');
+        if (!achievementsList) return;
+        
+        if (achievements.length === 0) {
+            achievementsList.innerHTML = '<em>No achievements collected yet.</em>';
+        } else {
+            const achievementsHtml = achievements.map(achievement => 
+                `You collected the following: ${achievement} (${achievements.indexOf(achievement) + 1}/${achievements.length})`
+            ).join('<br>');
+            achievementsList.innerHTML = achievementsHtml;
+        }
+        
+        console.log('✅ Achievements display updated');
+    }
+    
+    // Make function globally accessible
+    window.updateAchievementsDisplay = updateAchievementsDisplay;
 
     // Create the README icon on desktop after DOMContentLoaded
     createReadmeOnDesktop();
@@ -1640,9 +1696,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }); 
 
-console.log('Script loaded successfully');
-window.openWindow = openWindow;
-console.log('openWindow function is now globally accessible'); 
+window.openWindow = openWindow; 
 
 // Remove the zapperDestroy function's visual effect
 function zapperDestroy(x, y) {
@@ -1727,7 +1781,6 @@ function loadMinesweeperSprites() {
         const img = new Image();
         img.onload = () => {
             minesweeperGame.spriteSheet = img;
-            console.log('Block sprite sheet loaded successfully:', img.width, 'x', img.height);
             resolve(img);
         };
         img.onerror = (error) => {
@@ -1744,8 +1797,6 @@ function loadMinesweeperSmileys() {
         const img = new Image();
         img.onload = () => {
             minesweeperGame.smileySheet = img;
-            console.log('Smiley face sprite sheet loaded successfully:', img.width, 'x', img.height);
-            console.log('Expected dimensions: 48x240, got:', img.width, 'x', img.height);
             
             // Check if dimensions match expectations
             if (img.width !== 48 || img.height !== 240) {
@@ -1772,7 +1823,6 @@ function renderSmiley(spriteIndex) {
     }
     
     const smileyName = Object.keys(SMILEYS).find(key => SMILEYS[key] === spriteIndex);
-    console.log(`renderSmiley called with spriteIndex: ${spriteIndex} (${smileyName})`);
         
     // Clear any existing content and styles
     smileyElement.innerHTML = '';
@@ -1798,25 +1848,7 @@ function renderSmiley(spriteIndex) {
     smileyElement.style.backgroundPosition = `0 -${y}px`;
     
     smileyElement.style.backgroundRepeat = 'no-repeat';
-    
 
-    
-    // Debug: log what we're setting
-    console.log(`Setting smiley ${spriteIndex} (${smileyName}):`, {
-        backgroundImage: smileyElement.style.backgroundImage,
-        backgroundSize: smileyElement.style.backgroundSize,
-        backgroundPosition: smileyElement.style.backgroundPosition,
-        spriteIndex,
-        y
-    });
-    
-    // Also log the actual element dimensions and computed styles
-    console.log('Smiley element dimensions:', {
-        width: smileyElement.offsetWidth,
-        height: smileyElement.offsetHeight,
-        computedBackgroundSize: getComputedStyle(smileyElement).backgroundSize,
-        computedBackgroundPosition: getComputedStyle(smileyElement).backgroundPosition
-    });
 }
 
 // Render a sprite from the sprite sheet
@@ -1845,22 +1877,11 @@ function renderSprite(cell, spriteIndex) {
     cell.style.backgroundSize = `25px ${scaledSheetHeight}px`;
     
     // Calculate the Y position in the scaled sheet
-    // Each sprite is now 25px tall, so position = spriteIndex * 25
     const y = spriteIndex * SPRITE_SIZE;
     cell.style.backgroundPosition = `0 -${y}px`;
     
     cell.style.backgroundRepeat = 'no-repeat';
     
-    // Debug: log what we're setting
-    console.log(`Setting sprite ${spriteIndex} for cell:`, {
-        backgroundImage: cell.style.backgroundImage,
-        backgroundSize: cell.style.backgroundSize,
-        backgroundPosition: cell.style.backgroundPosition,
-        spriteIndex,
-        y,
-        scaleFactor,
-        scaledSheetHeight
-    });
 }
 
 // Initialize Minesweeper when window opens
@@ -1884,8 +1905,6 @@ function initializeMinesweeper() {
         smileySheet: null
     };
     
-    console.log('Minesweeper initialized with fresh state:', minesweeperGame);
-    
     // Load both sprite sheets first, then create grid
     Promise.all([
         loadMinesweeperSprites(),
@@ -1895,7 +1914,6 @@ function initializeMinesweeper() {
         updateTimer();
         createGrid();
         // Set initial smiley face based on game state - only after sheets are loaded
-        console.log('All sprites loaded, updating smiley face...');
         updateSmileyFace();
     }).catch(error => {
         console.error('Failed to load Minesweeper sprites:', error);
@@ -1903,12 +1921,10 @@ function initializeMinesweeper() {
         updateMineCount();
         updateTimer();
         createGrid();
-        // Don't update smiley face if sprites failed to load
         console.warn('Skipping smiley face update due to sprite loading failure');
     });
 }
 
-// Create the Minesweeper grid
 function createGrid() {
     const gridContainer = document.getElementById('minesweeper-grid');
     if (!gridContainer) return;
@@ -1980,7 +1996,6 @@ function handleCellClick(row, col) {
     }
     
     if (minesweeperGame.grid[row][col] === -1) {
-        // Hit a mine - game over
         gameOver(false);
         return;
     }
@@ -2007,7 +2022,6 @@ function handleRightClick(row, col) {
     updateCellDisplay(row, col);
     updateMineCount();
     
-    // Update smiley face based on new game state
     setTimeout(() => {
         updateSmileyFace();
     }, 100);
@@ -2149,7 +2163,6 @@ function checkWinCondition() {
     }
 }
 
-// Game over
 function gameOver(won) {
     minesweeperGame.gameOver = true;
     minesweeperGame.gameWon = won;
@@ -2202,28 +2215,15 @@ function minesweeperNewGame() {
 
 // Update smiley face based on game state
 function updateSmileyFace() {
-    console.log('updateSmileyFace called with game state:', {
-        gameOver: minesweeperGame.gameOver,
-        gameWon: minesweeperGame.gameWon,
-        firstClick: minesweeperGame.firstClick
-    });
-    
-    // Add more detailed logging
-    console.log('Current minesweeperGame state:', minesweeperGame);
-    
     if (minesweeperGame.gameOver) {
         if (minesweeperGame.gameWon) {
-            console.log('Game over - won, showing sunglasses');
             renderSmiley(SMILEYS.SUNGLASSES);
         } else {
-            console.log('Game over - lost, showing dead');
             renderSmiley(SMILEYS.DEAD);
         }
     } else if (minesweeperGame.firstClick) {
-        console.log('First click, showing happy unopened');
         renderSmiley(SMILEYS.HAPPY_UNOPENED);
     } else {
-        console.log('Game in progress, showing happy clicked');
         renderSmiley(SMILEYS.HAPPY_CLICKED);
     }
 }
@@ -2237,19 +2237,11 @@ window.loadMinesweeperSmileys = loadMinesweeperSmileys;
 window.renderSmiley = renderSmiley; 
 window.updateSmileyFace = updateSmileyFace;
 
-// Add a test function to debug smiley rendering
-window.testSmileyRendering = function() {
-    console.log('Testing smiley rendering...');
-    console.log('Current game state:', minesweeperGame);
-    
-    // Test each smiley state
-    for (let i = 0; i < 5; i++) {
-        console.log(`Testing smiley ${i}...`);
-        renderSmiley(i);
-        // Wait a bit between each test
-        setTimeout(() => {}, 500);
-    }
-};
+
+
+// Achievement tracking system
+let achievements = [];
+let achievementsAddedToReadme = false;
 
 // Achievement popup functions
 function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
@@ -2258,6 +2250,20 @@ function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
     
     // Update the achievement title
     titleElement.textContent = achievementTitle;
+    
+    // Track the achievement
+    if (!achievements.includes(achievementTitle)) {
+        achievements.push(achievementTitle);
+        
+        // If this is the first achievement, add to README
+        if (!achievementsAddedToReadme) {
+            addAchievementsToReadme();
+            achievementsAddedToReadme = true;
+        }
+        
+        // Update achievements display in README.txt window
+        updateAchievementsDisplay();
+    }
     
     popup.classList.remove('hidden');
     
@@ -2270,6 +2276,30 @@ function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
 function closeAchievementPopup() {
     const popup = document.getElementById('achievementPopup');
     popup.classList.add('hidden');
+}
+
+
+
+// Function to add achievements to README.txt window
+function addAchievementsToReadme() {
+    // Update the achievements display in README.txt window
+    updateAchievementsDisplay();
+    
+    // Show popup with achievement info
+    const achievementInfo = document.createElement('div');
+    achievementInfo.className = 'achievement-info';
+    achievementInfo.innerHTML = `
+        <div style="background: #c0c0c0; border: 2px outset #c0c0c0; padding: 15px; margin: 20px; font-family: 'W95FA', monospace;">
+            <h3 style="margin-top: 0;">🏆 Achievement Unlocked!</h3>
+            <p>You've unlocked your first achievement! Check the README.txt window to see your progress.</p>
+            <button onclick="this.parentElement.remove()" style="background: #c0c0c0; border: 2px outset #c0c0c0; padding: 5px 15px; cursor: pointer;">Close</button>
+        </div>
+    `;
+    
+    // Add it to the page
+    document.body.appendChild(achievementInfo);
+    
+    console.log('🏆 Achievement added to README.txt window');
 }
 
 // Show achievement popup when Network Neighborhood is opened
@@ -2289,3 +2319,14 @@ function openWindowWithAchievement(windowId) {
 window.showAchievementPopup = showAchievementPopup;
 window.closeAchievementPopup = closeAchievementPopup;
 window.openWindowWithAchievement = openWindowWithAchievement;
+window.addAchievementsToReadme = addAchievementsToReadme;
+
+// Debug function to test achievements
+window.testAchievements = function() {
+    console.log('Current achievements:', achievements);
+    if (achievements.length > 0) {
+        updateAchievementsDisplay();
+    } else {
+        console.log('No achievements unlocked yet!');
+    }
+};
