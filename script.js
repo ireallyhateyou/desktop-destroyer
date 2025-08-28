@@ -24,7 +24,7 @@ function updateClock() {
 
 let currentTool = null; // Default: no tool selected
 
-// Hammer image sizes (actual size of hammer idle.png)
+// Hammer image sizes
 const HAMMER_WIDTH = 85; 
 const HAMMER_HEIGHT = 119; 
 const HAMMER_IDLE = 'assets/hammer idle.png';
@@ -36,12 +36,12 @@ const STAMP_HEIGHT = 144;
 const STAMP_IDLE = 'assets/stamp idle.png';
 const STAMP_CLICK = 'assets/stamp click.png';
 
-// Add machine gun tool constants
+// machine gun tool constants
 const MACHINE_GUN_IDLE = 'assets/machine gun idle.png';
 const MACHINE_GUN_CLICK = 'assets/machine gun click1.png';
 const MACHINE_GUN_CLICK2 = 'assets/machine gun click2.png';
 
-// Add zapper tool constants
+// zapper tool constants
 const ZAPPER_IDLE = 'assets/zapper idle.png';
 const ZAPPER_CLICK = 'assets/zapper click1.png';
 const ZAPPER_CLICK2 = 'assets/zapper click2.png';
@@ -70,7 +70,6 @@ function openWindow(windowType) {
     window.style.top = '100px';
     window.style.left = '200px';
     
-    // Set specific size for Minesweeper window
     if (windowType === 'minesweeper') {
         window.style.width = '350px';
         window.style.height = '350px';
@@ -106,11 +105,6 @@ function openWindow(windowType) {
             initializeMinesweeper();
         }, 100);
     }
-    
-    // Achievement: First Window Opened
-    if (!achievements.includes("Window Shopper")) {
-        showAchievementPopup("Window Shopper");
-    }
 }
 
 function getWindowContent(windowType) {
@@ -134,7 +128,7 @@ function getWindowContent(windowType) {
         },
         'network-neighborhood': {
             title: 'Network Neighborhood',
-            content: `<div style='padding:10px;'><p style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-style: italic;">"Neighborhood" you say...</p></div>`
+            content: `<div style='padding:10px; text-align: center; display: flex; justify-content: center; align-items: center; height: 100%;'><p style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-style: italic; font-weight: bold; font-size: 24px;">"Neighborhood" you say...</p></div>`
         },
         'inbox': {
             title: 'Inbox',
@@ -671,10 +665,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sprayX = e.clientX;
             sprayY = e.clientY;
             
-            // Achievement: First Hammer Strike
-            if (!achievements.includes("Hammer Time")) {
-                showAchievementPopup("Hammer Time");
-            }
+
             hammerSprayInterval = setInterval(() => {
                 if (isHammerSpraying) {
                     // Switch to click image when creating effect
@@ -700,10 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sprayX = e.clientX;
             sprayY = e.clientY;
             
-            // Achievement: First Stamp Use
-            if (!achievements.includes("Stamp Collector")) {
-                showAchievementPopup("Stamp Collector");
-            }
+
             stampSprayInterval = setInterval(() => {
                 if (isStampSpraying) {
                     // Switch to click image when creating effect
@@ -728,12 +716,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isMachineGunSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
-            
-            // Achievement: First Machine Gun Use
-            if (!achievements.includes("Rambo Mode")) {
-                showAchievementPopup("Rambo Mode");
-            }
-
             machineGunSprayInterval = setInterval(() => {
                 if (isMachineGunSpraying) {
                     machineGunDestroy(sprayX, sprayY);
@@ -757,10 +739,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sprayX = e.clientX;
             sprayY = e.clientY;
             
-            // Achievement: First Zapper Use
-            if (!achievements.includes("Zap Attack")) {
-                showAchievementPopup("Zap Attack");
-            }
+
             // Show zap hole immediately on click
             zapperDestroy(sprayX, sprayY);
             zapperSprayInterval = setInterval(() => {
@@ -790,6 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateZapperEffectImg(e.clientX, e.clientY);
         }
     });
+
     desktop.addEventListener('mouseup', function(e) {
         if (currentTool === 'hammer') {
             customCursor.innerHTML = `<img src="${HAMMER_IDLE}" style="width:auto;height:auto;display:block;">`;
@@ -1681,7 +1661,7 @@ document.addEventListener('DOMContentLoaded', function() {
             achievementsList.innerHTML = achievementsHtml;
         }
         
-        console.log('✅ Achievements display updated');
+
     }
     
     // Make function globally accessible
@@ -1698,25 +1678,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.openWindow = openWindow; 
 
-// Remove the zapperDestroy function's visual effect
+// Zapper destruction effect
 function zapperDestroy(x, y) {
     // Play zap sound
     const zapAudio = new Audio('assets/zap.ogg');
     zapAudio.volume = window.destructionVolume || 0.3;
     zapAudio.play();
+    
     // Create a zap hole effect at the click location
     const zapHole = document.createElement('div');
     zapHole.className = 'zapper-zap-hole';
-    zapHole.style.position = 'absolute';
-    zapHole.style.left = (x - 66) + 'px'; // Offset by +15px
-    zapHole.style.top = (y - 66) + 'px';  // Offset by +15px
-    zapHole.style.width = '55px';
-    zapHole.style.height = '55px';
-    zapHole.style.backgroundImage = 'url("assets/zap hole.png")';
-    zapHole.style.backgroundSize = 'contain';
-    zapHole.style.backgroundRepeat = 'no-repeat';
-    zapHole.style.pointerEvents = 'none';
-    zapHole.style.zIndex = '1300';
+    zapHole.style.cssText = `
+        position: absolute;
+        left: ${x - 66}px;
+        top: ${y - 66}px;
+        width: 55px;
+        height: 55px;
+        background-image: url("assets/zap hole.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        z-index: 1300;
+    `;
+    
     document.getElementById('desktop').appendChild(zapHole);
 } 
 
@@ -1734,14 +1718,14 @@ const SMILEY_SHEET = 'assets/minesweeper/smileys.png';
 
 // Sprite indices (from top to bottom in the 40x640 image)
 const SPRITES = {
-    UNCLICKED: 0,      // block (unclicked closed, normal default)
-    FLAGGED: 1,        // block (flagged, closed)
-    QUESTIONED: 2,     // block (questioned, closed)
-    RED_BOMBED: 3,     // block (red and bombed, open)
-    BOMB_CROSS: 4,     // block (bomb with cross, open)
-    BOMB: 5,           // block (bomb, open)
-    QUESTIONED_OPEN: 6, // block (questioned, open)
-    NUMBER_7: 7,       // blocks representing numbers 7 to 1
+    UNCLICKED: 0,      // unclicked closed, normal default
+    FLAGGED: 1,        // flagged, closed
+    QUESTIONED: 2,     // questioned, closed
+    RED_BOMBED: 3,     // red and bombed, open
+    BOMB_CROSS: 4,     // bomb with cross, open
+    BOMB: 5,           // bomb, open
+    QUESTIONED_OPEN: 6, // questioned, open
+    NUMBER_7: 7,       // numbers 7 to 1
     NUMBER_6: 8,
     NUMBER_5: 9,
     NUMBER_4: 10,
@@ -1753,11 +1737,11 @@ const SPRITES = {
 
 // Smiley face sprite indices (from top to bottom in the 48x240 image)
 const SMILEYS = {
-    HAPPY_CLICKED: 0,   // smiley (clicked) - top
+    HAPPY_CLICKED: 0,   // clicked - top
     SUNGLASSES: 1,      // sunglasses - second
     DEAD: 2,            // dead - third
     OPEN_MOUTH: 3,      // open mouth - fourth
-    HAPPY_UNOPENED: 4   // smiley (unopened) - bottom
+    HAPPY_UNOPENED: 4   // unopened - bottom
 };
 
 // Minesweeper game state
@@ -1797,13 +1781,6 @@ function loadMinesweeperSmileys() {
         const img = new Image();
         img.onload = () => {
             minesweeperGame.smileySheet = img;
-            
-            // Check if dimensions match expectations
-            if (img.width !== 48 || img.height !== 240) {
-                console.warn('WARNING: Smiley sheet dimensions do not match expected 48x240!');
-                console.warn('This may cause incorrect sprite positioning.');
-            }
-            
             resolve(img);
         };
         img.onerror = (error) => {
@@ -1814,16 +1791,12 @@ function loadMinesweeperSmileys() {
     });
 }
 
-// Render a smiley face from the sprite sheet
 function renderSmiley(spriteIndex) {
     const smileyElement = document.getElementById('minesweeper-smiley');
     if (!smileyElement) {
-        console.warn('Smiley element not found, cannot render smiley face');
         return;
     }
     
-    const smileyName = Object.keys(SMILEYS).find(key => SMILEYS[key] === spriteIndex);
-        
     // Clear any existing content and styles
     smileyElement.innerHTML = '';
     smileyElement.style.backgroundImage = '';
@@ -1836,22 +1809,12 @@ function renderSmiley(spriteIndex) {
     // Set the smiley sheet as background
     smileyElement.style.backgroundImage = `url(${SMILEY_SHEET})`;
     
-    // The original smiley sheet is 48x240 (5 sprites of 48x48 each)
-    // CSS scales it down to 44x220 (5 sprites of 44x44 each)
-    // So each sprite is now 44px tall in the scaled sheet
-    
     // Calculate the Y position in the scaled sheet
-    // Each sprite is now 44px tall, so position = spriteIndex * 44
     const y = spriteIndex * 44;
-    // For sprite sheets, use negative Y to move "up" in the sheet
-    // This positions the sprite correctly within the original sheet
     smileyElement.style.backgroundPosition = `0 -${y}px`;
-    
     smileyElement.style.backgroundRepeat = 'no-repeat';
-
 }
 
-// Render a sprite from the sprite sheet
 function renderSprite(cell, spriteIndex) {
     // Clear any existing content and styles
     cell.innerHTML = '';
@@ -1865,23 +1828,15 @@ function renderSprite(cell, spriteIndex) {
     // Set the sprite sheet as background
     cell.style.backgroundImage = `url(${SPRITE_SHEET})`;
     
-    // The original sprite sheet is 40x640 (16 sprites of 40x40 each)
-    // We want to display it in 25x25 cells
-    // So we need to scale the entire sheet proportionally
+    // Scale the entire sprite sheet: 40x640 becomes 25x400
     const originalSpriteSize = 40;
     const originalSheetHeight = 640;
-    const scaleFactor = SPRITE_SIZE / originalSpriteSize; // 25/40 = 0.625
-    
-    // Scale the entire sprite sheet: 40x640 becomes 25x400
+    const scaleFactor = SPRITE_SIZE / originalSpriteSize;
     const scaledSheetHeight = originalSheetHeight * scaleFactor;
+    
     cell.style.backgroundSize = `25px ${scaledSheetHeight}px`;
-    
-    // Calculate the Y position in the scaled sheet
-    const y = spriteIndex * SPRITE_SIZE;
-    cell.style.backgroundPosition = `0 -${y}px`;
-    
+    cell.style.backgroundPosition = `0 -${spriteIndex * SPRITE_SIZE}px`;
     cell.style.backgroundRepeat = 'no-repeat';
-    
 }
 
 // Initialize Minesweeper when window opens
@@ -1980,13 +1935,11 @@ function createGrid() {
     }
 }
 
-// Handle left click on cell
 function handleCellClick(row, col) {
     if (minesweeperGame.gameOver || minesweeperGame.gameWon || minesweeperGame.flagged[row][col]) {
         return;
     }
     
-    // Show open mouth smiley when clicking
     renderSmiley(SMILEYS.OPEN_MOUTH);
     
     if (minesweeperGame.firstClick) {
@@ -2003,19 +1956,16 @@ function handleCellClick(row, col) {
     revealCell(row, col);
     checkWinCondition();
     
-    // Update smiley face based on new game state
     setTimeout(() => {
         updateSmileyFace();
     }, 100);
 }
 
-// Handle right click on cell
 function handleRightClick(row, col) {
     if (minesweeperGame.gameOver || minesweeperGame.gameWon || minesweeperGame.revealed[row][col]) {
         return;
     }
     
-    // Show open mouth smiley when flagging
     renderSmiley(SMILEYS.OPEN_MOUTH);
     
     minesweeperGame.flagged[row][col] = !minesweeperGame.flagged[row][col];
@@ -2086,12 +2036,10 @@ function revealCell(row, col) {
     }
 }
 
-// Update cell display
 function updateCellDisplay(row, col) {
     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
     if (!cell) return;
     
-    // Use sprites instead of emojis
     if (minesweeperGame.flagged[row][col]) {
         renderSprite(cell, SPRITES.FLAGGED);
         cell.style.border = '2px outset #c0c0c0';
@@ -2103,7 +2051,6 @@ function updateCellDisplay(row, col) {
             renderSprite(cell, SPRITES.EMPTY);
             cell.style.border = '2px inset #c0c0c0';
         } else {
-            // Map numbers to sprite indices (7 to 1)
             const numberSpriteMap = {
                 7: SPRITES.NUMBER_7,
                 6: SPRITES.NUMBER_6,
@@ -2171,18 +2118,15 @@ function gameOver(won) {
         clearInterval(minesweeperGame.timerInterval);
     }
     
-    // Update smiley face based on game result
     updateSmileyFace();
     
     // Reveal all mines and show incorrectly flagged cells
     for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
             if (minesweeperGame.grid[row][col] === -1) {
-                // Show mine
                 minesweeperGame.revealed[row][col] = true;
                 updateCellDisplay(row, col);
             } else if (minesweeperGame.flagged[row][col]) {
-                // Show incorrectly flagged cell with cross
                 const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                 if (cell) {
                     renderSprite(cell, SPRITES.BOMB_CROSS);
@@ -2192,13 +2136,11 @@ function gameOver(won) {
         }
     }
     
-    // Show game over message
     setTimeout(() => {
         if (won) {
             alert('Congratulations! You won! 🎉');
         } else {
             alert('Game Over! 💣');
-            // Show "Blown Up" achievement when player loses
             setTimeout(() => {
                 showAchievementPopup("Blown Up");
             }, 500);
@@ -2206,14 +2148,11 @@ function gameOver(won) {
     }, 100);
 }
 
-// New game function
 function minesweeperNewGame() {
     initializeMinesweeper();
-    // Reset smiley face based on game state
     updateSmileyFace();
 }
 
-// Update smiley face based on game state
 function updateSmileyFace() {
     if (minesweeperGame.gameOver) {
         if (minesweeperGame.gameWon) {
@@ -2243,31 +2182,31 @@ window.updateSmileyFace = updateSmileyFace;
 let achievements = [];
 let achievementsAddedToReadme = false;
 
-// Achievement popup functions
 function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
     const popup = document.getElementById('achievementPopup');
     const titleElement = popup.querySelector('.achievement-content p');
     
-    // Update the achievement title
     titleElement.textContent = achievementTitle;
     
-    // Track the achievement
     if (!achievements.includes(achievementTitle)) {
         achievements.push(achievementTitle);
         
-        // If this is the first achievement, add to README
+        // Play tada! sound
+        const achievementSound = new Audio('assets/tada.mp3');
+        achievementSound.play().catch(error => {
+            console.error('Error playing achievement sound:', error);
+        });
+        
         if (!achievementsAddedToReadme) {
             addAchievementsToReadme();
             achievementsAddedToReadme = true;
         }
         
-        // Update achievements display in README.txt window
         updateAchievementsDisplay();
     }
     
     popup.classList.remove('hidden');
     
-    // Add a small delay to make it feel more natural
     setTimeout(() => {
         popup.style.opacity = '1';
     }, 100);
@@ -2282,33 +2221,14 @@ function closeAchievementPopup() {
 
 // Function to add achievements to README.txt window
 function addAchievementsToReadme() {
-    // Update the achievements display in README.txt window
     updateAchievementsDisplay();
-    
-    // Show popup with achievement info
-    const achievementInfo = document.createElement('div');
-    achievementInfo.className = 'achievement-info';
-    achievementInfo.innerHTML = `
-        <div style="background: #c0c0c0; border: 2px outset #c0c0c0; padding: 15px; margin: 20px; font-family: 'W95FA', monospace;">
-            <h3 style="margin-top: 0;">🏆 Achievement Unlocked!</h3>
-            <p>You've unlocked your first achievement! Check the README.txt window to see your progress.</p>
-            <button onclick="this.parentElement.remove()" style="background: #c0c0c0; border: 2px outset #c0c0c0; padding: 5px 15px; cursor: pointer;">Close</button>
-        </div>
-    `;
-    
-    // Add it to the page
-    document.body.appendChild(achievementInfo);
-    
-    console.log('🏆 Achievement added to README.txt window');
 }
 
 // Show achievement popup when Network Neighborhood is opened
 function openWindowWithAchievement(windowId) {
     openWindow(windowId);
     
-    // Check if this is the Network Neighborhood window
     if (windowId === 'network-neighborhood') {
-        // Show achievement popup after a short delay
         setTimeout(() => {
             showAchievementPopup("Boulevard of Broken Dreams");
         }, 500);
@@ -2323,10 +2243,7 @@ window.addAchievementsToReadme = addAchievementsToReadme;
 
 // Debug function to test achievements
 window.testAchievements = function() {
-    console.log('Current achievements:', achievements);
     if (achievements.length > 0) {
         updateAchievementsDisplay();
-    } else {
-        console.log('No achievements unlocked yet!');
     }
 };

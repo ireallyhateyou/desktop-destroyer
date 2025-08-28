@@ -35,6 +35,7 @@
         <div class="icon-label">Minesweeper</div>
       </div>
     </div>
+
     <div class="win95-window toolbar">
       <div class="toolbar-label">Destruction Tools</div>
       <div class="toolbar-buttons-wrapper" style="display: flex; align-items: center; width: 100%;">
@@ -65,7 +66,9 @@
         <input type="file" id="file-input" accept="image/*,video/*" style="display:none;">
       </div>
     </div>
+
     <div id="windows-container"></div>
+
     <nav class="win95-menu start-menu" id="startMenu" style="display:none; position: absolute; left: 0; bottom: 0; min-width: 220px; height: 350px;">
       <div class="start-banner"><img src="assets/binbows banner.png" alt="Windows 95" style="width:32px; height:350px; object-fit:contain; display:block;"></div>
       <ul class="win95-menu">
@@ -88,6 +91,7 @@
       </ul>
     </nav>
   </main>
+
   <footer class="win95-taskbar">
     <button class="win95-btn start-btn-wide" id="startButton">
       <img src="assets/binbows.png" alt="Windows" class="start-icon"> Start
@@ -95,6 +99,7 @@
     <span class="win95-taskbar-spacer"></span>
     <span class="win95-taskbar-clock" id="clock"></span>
   </footer>
+
   <script src="script.js"></script>
   <div id="custom-cursor" style="display:none; position:fixed; pointer-events:none; z-index:99999;"></div>
   <div id="achievementPopup" class="achievement-popup hidden">
@@ -110,6 +115,7 @@
       <button class="win95-btn" onclick="closeAchievementPopup()">OK</button>
     </div>
   </div>
+  
   <div id="shutdown-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; flex-direction:column; justify-content:center; align-items:center;">
     <span style="color:orange; font-size:5vw; font-family:'W95FA', 'MS Sans Serif', Arial, sans-serif; text-align:center; text-shadow:2px 2px 0 #000; line-height:1.1; letter-spacing:2px;">
       It's now safe to turn off
