@@ -53,7 +53,7 @@
           <button class="tool-button win95-btn" data-tool="zapper" title="Zapper">
             <img src="assets/zapper idle.png" alt="Zapper" style="width: 24px; height: 24px; object-fit: contain;">
           </button>
-          <button class="tool-button win95-btn" data-tool="reset" title="Reset Desktop"><img src="/assets/icons/arrow.png" alt="Reset" style="width: 24px; height: 24px; object-fit: contain;"></button>
+          <button class="tool-button win95-btn" data-tool="reset" title="Reset Desktop"><img src="assets/icons/arrow.png" alt="Reset" style="width: 24px; height: 24px; object-fit: contain;"></button>
         </div>
         <button id="toolbar-arrow-right" class="toolbar-arrow" title="Scroll Right">&gt;</button>
       </div>
@@ -87,7 +87,7 @@
         <li onclick="openWindow('help')"><img src="assets/icons/help.png" class="menu-icon" alt="Help"> Help</li>
         <li onclick="openWindow('run')"><img src="assets/icons/run.png" class="menu-icon" alt="Run"> Run...</li>
         <hr>
-        <li onclick="openWindow('shutdown')"><img src="assets/icons/shut down.png" class="menu-icon" alt="Shut Down"> Shut Down...</li>
+        <li onclick="openWindowWithAchievement('shutdown')"><img src="assets/icons/shut down.png" class="menu-icon" alt="Shut Down"> Shut Down...</li>
       </ul>
     </nav>
   </main>
@@ -100,7 +100,6 @@
     <span class="win95-taskbar-clock" id="clock"></span>
   </footer>
 
-  <script src="script.js"></script>
   <div id="custom-cursor" style="display:none; position:fixed; pointer-events:none; z-index:99999;"></div>
   <div id="achievementPopup" class="achievement-popup hidden">
     <div class="achievement-header">
@@ -109,7 +108,10 @@
       <button class="close-btn" onclick="closeAchievementPopup()">×</button>
     </div>
     <div class="achievement-content">
-      <p>Boulevard of Broken Dreams</p>
+      <div style="display: flex; align-items: center; justify-content: center;">
+        <img id="achievement-content-icon" src="assets/icons/help.png" alt="Achievement" style="width: 24px; height: 24px; margin-right: 12px; object-fit: contain;">
+        <p id="achievement-title">Boulevard of Broken Dreams</p>
+      </div>
     </div>
     <div class="achievement-footer">
       <button class="win95-btn" onclick="closeAchievementPopup()">OK</button>
@@ -124,5 +126,7 @@
       your computer.
     </span>
   </div>
+  
+  <script src="script.js"></script>
 </body>
 </html>

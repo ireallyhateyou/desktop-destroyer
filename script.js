@@ -178,11 +178,6 @@ function getWindowContent(windowType) {
             title: 'Run',
             content: `<div style='padding:10px;'><h3>Run</h3><p>dfdssqgsg</p></div>`
         },
-        'shutdown': {
-            title: 'Shut Down',
-            content: `<div style='padding:10px;'><h3>Shut Down</h3><p>You are not supposed to see this</p></div>`
-        },
-        
         // Programs Submenu
         'notepad': {
             title: 'Notepad',
@@ -664,7 +659,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isHammerSpraying = true;
             sprayX = e.clientX;
             sprayY = e.clientY;
-            
 
             hammerSprayInterval = setInterval(() => {
                 if (isHammerSpraying) {
@@ -1339,13 +1333,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add some random glitches
-    setInterval(() => {
-        if (Math.random() < 0.02) {
-            glitchEffect();
-        }
-    }, 5000); 
-
     // --- Start Menu Interactivity ---
     const startButton = document.getElementById('startButton');
     const startMenu = document.getElementById('startMenu');
@@ -1655,13 +1642,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (achievements.length === 0) {
             achievementsList.innerHTML = '<em>No achievements collected yet.</em>';
         } else {
-            const achievementsHtml = achievements.map(achievement => 
-                `You collected the following: ${achievement} (${achievements.indexOf(achievement) + 1}/${achievements.length})`
-            ).join('<br>');
+            const achievementsHtml = achievements.map(achievement => {
+                const iconPath = achievementIcons[achievement] || "assets/icons/help.png";
+                return `<div class="achievement-list-item">
+                    <img src="${iconPath}" alt="${achievement}">
+                    <span>${achievement} (${achievements.indexOf(achievement) + 1}/${achievements.length})</span>
+                </div>`;
+            }).join('');
             achievementsList.innerHTML = achievementsHtml;
         }
-        
-
     }
     
     // Make function globally accessible
@@ -2136,16 +2125,16 @@ function gameOver(won) {
         }
     }
     
-    setTimeout(() => {
-        if (won) {
-            alert('Congratulations! You won! 🎉');
-        } else {
-            alert('Game Over! 💣');
-            setTimeout(() => {
-                showAchievementPopup("Blown Up");
-            }, 500);
-        }
-    }, 100);
+    if (won) {
+        // Win achievement shows immediately
+        setTimeout(() => {
+            showAchievementPopup("Minesweeper Pro");
+        }, 100);
+         } else {
+         // For loss, create the dramatic boom cutscene
+         console.log('Minesweeper lost! Creating boom cutscene...');
+         createBoomCutscene();
+     }
 }
 
 function minesweeperNewGame() {
@@ -2182,28 +2171,59 @@ window.updateSmileyFace = updateSmileyFace;
 let achievements = [];
 let achievementsAddedToReadme = false;
 
+// Achievement icon mapping
+const achievementIcons = {
+    "Minesweeper Pro": "assets/icons/minesweeper big.png",
+    "Blown Up": "assets/icons/minesweeper.png", 
+    "Resurrection": "assets/icons/arrow.png",
+    "Boulevard of Broken Dreams": "assets/icons/folder.png",
+    "Hammer Master": "assets/icons/settings.png",
+    "Destruction Artist": "assets/icons/paint.png",
+    "Desktop Devastator": "assets/icons/my computer.png",
+    "Glass Breaker": "assets/icons/help.png",
+    "Tool Collector": "assets/icons/program group.png",
+    "Recycle Master": "assets/icons/recycle bin.png"
+};
+
 function showAchievementPopup(achievementTitle = "Boulevard of Broken Dreams") {
     const popup = document.getElementById('achievementPopup');
-    const titleElement = popup.querySelector('.achievement-content p');
+    const titleElement = popup.querySelector('#achievement-title');
+    const headerIcon = popup.querySelector('.achievement-header img');
+    const contentIcon = popup.querySelector('#achievement-content-icon');
     
+    // Update the achievement title
     titleElement.textContent = achievementTitle;
     
+    // Update both icons to match the achievement
+    const iconPath = achievementIcons[achievementTitle] || "assets/icons/help.png";
+    headerIcon.src = iconPath;
+    headerIcon.alt = achievementTitle;
+    contentIcon.src = iconPath;
+    contentIcon.alt = achievementTitle;
+    
+        // Check if achievement already exists to prevent duplicates
     if (!achievements.includes(achievementTitle)) {
         achievements.push(achievementTitle);
-        
-        // Play tada! sound
-        const achievementSound = new Audio('assets/tada.mp3');
-        achievementSound.play().catch(error => {
-            console.error('Error playing achievement sound:', error);
-        });
-        
+
         if (!achievementsAddedToReadme) {
             addAchievementsToReadme();
             achievementsAddedToReadme = true;
         }
-        
+
         updateAchievementsDisplay();
+    } else {
+        // Achievement already exists, just show the popup without adding it again
+        console.log(`Achievement "${achievementTitle}" already unlocked`);
     }
+    
+         // Always play tada! sound when showing achievement popup
+     console.log('Creating achievement sound audio...');
+     const achievementSound = new Audio('assets/tada.mp3');
+     achievementSound.volume = 1.0;
+     console.log('Attempting to play achievement sound...');
+     achievementSound.play().catch(error => {
+         console.error('Error playing achievement sound:', error);
+     });
     
     popup.classList.remove('hidden');
     
@@ -2217,15 +2237,31 @@ function closeAchievementPopup() {
     popup.classList.add('hidden');
 }
 
-
-
-// Function to add achievements to README.txt window
 function addAchievementsToReadme() {
     updateAchievementsDisplay();
 }
 
 // Show achievement popup when Network Neighborhood is opened
 function openWindowWithAchievement(windowId) {
+    if (windowId === 'shutdown') {
+        // Show the shutdown overlay first
+        const shutdownOverlay = document.getElementById('shutdown-overlay');
+        if (shutdownOverlay) {
+            shutdownOverlay.style.display = 'flex';
+            
+            // Wait for user to click the overlay, then show achievement
+            const handleShutdownClick = () => {
+                shutdownOverlay.style.display = 'none';
+                shutdownOverlay.removeEventListener('click', handleShutdownClick);
+                // Now show the achievement after overlay is dismissed
+                showAchievementPopup("Resurrection");
+            };
+            
+            shutdownOverlay.addEventListener('click', handleShutdownClick);
+        }
+        return; // Exit early, don't open any window
+    }
+    
     openWindow(windowId);
     
     if (windowId === 'network-neighborhood') {
@@ -2247,3 +2283,153 @@ window.testAchievements = function() {
         updateAchievementsDisplay();
     }
 };
+
+// Test function to show different achievements with icons
+window.testAchievementIcons = function() {
+    const testAchievements = [
+        "Minesweeper Pro",
+        "Blown Up", 
+        "Resurrection",
+        "Boulevard of Broken Dreams",
+        "Hammer Master",
+        "Destruction Artist",
+        "Desktop Devastator",
+        "Glass Breaker",
+        "Tool Collector",
+        "Recycle Master"
+    ];
+    
+    testAchievements.forEach((achievement, index) => {
+        setTimeout(() => {
+            showAchievementPopup(achievement);
+        }, index * 2000); // Show each achievement 2 seconds apart
+    });
+};
+
+// Create dramatic boom cutscene when losing
+function createBoomCutscene() {
+    // Preload all audio files to avoid autoplay issues
+    const fuseSound = new Audio('assets/fuse.ogg');
+    fuseSound.volume = 0.3;
+    
+    const explosionSounds = [];
+    for (let i = 1; i <= 4; i++) {
+        const sound = new Audio(`assets/Explosion${i}.ogg`);
+        sound.volume = 0.1;
+        explosionSounds.push(sound);
+    }
+    
+    // Play fuse sound first (quieter)
+    console.log('Attempting to play fuse sound...');
+    fuseSound.play().catch(error => {
+        console.error('Error playing fuse sound:', error);
+    });
+
+    const boomSize = 100; // Size of each boom
+    const boomsPerRow = Math.ceil(window.innerWidth / boomSize);
+    const boomsPerCol = Math.ceil(window.innerHeight / boomSize);
+    const totalBooms = boomsPerRow * boomsPerCol;
+    let currentBoom = 0;
+    
+    // Create boom container that covers the entire screen
+    const boomContainer = document.createElement('div');
+    boomContainer.id = 'boom-cutscene-container';
+    boomContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+        pointer-events: none;
+    `;
+    document.body.appendChild(boomContainer);
+    
+    // Function to create a single boom
+    function createBoom(index) {
+        const row = Math.floor(index / boomsPerRow);
+        const col = index % boomsPerRow;
+        
+        const boom = document.createElement('img');
+        boom.src = 'assets/boom.gif';
+        boom.style.cssText = `
+            position: absolute;
+            left: ${col * boomSize}px;
+            top: ${row * boomSize}px;
+            width: ${boomSize}px;
+            height: ${boomSize}px;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.4s ease-out;
+            filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.8));
+        `;
+        
+        boomContainer.appendChild(boom);
+        
+        // Animate boom appearance with staggered timing
+        setTimeout(() => {
+            boom.style.opacity = '1';
+            boom.style.transform = 'scale(1.1)';
+            
+                                                   // Play random explosion sound for each boom (much quieter)
+             const explosionNumber = Math.floor(Math.random() * 4); // Random 0-3 for array index
+             const explosionSound = explosionSounds[explosionNumber];
+             console.log(`Attempting to play explosion sound ${explosionNumber + 1}...`);
+             
+             // Clone the audio to allow multiple simultaneous plays
+             const soundClone = explosionSound.cloneNode();
+             soundClone.volume = 0.1;
+             soundClone.play().catch(error => {
+                 console.error('Error playing explosion sound:', error);
+             });
+            
+            // Add shake effect to the screen
+            document.body.style.animation = 'shake 0.2s ease-out';
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 200);
+            
+        }, 50);
+        
+        // Remove boom after animation
+        setTimeout(() => {
+            boom.style.opacity = '0';
+            boom.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                if (boom.parentNode) {
+                    boom.remove();
+                }
+            }, 400);
+        }, 1200);
+    }
+    
+    // Function to trigger next boom
+    function triggerNextBoom() {
+        if (currentBoom < totalBooms) {
+            createBoom(currentBoom);
+            currentBoom++;
+            
+            // Vary timing slightly for more organic feel
+            const delay = 150 + Math.random() * 50; // 150-200ms between booms
+            setTimeout(triggerNextBoom, delay);
+        } else {
+            // All booms completed, show achievement and clean up
+            setTimeout(() => {
+                // Remove boom container
+                if (boomContainer.parentNode) {
+                    boomContainer.remove();
+                }
+                
+                                 // Now show the achievement
+                 console.log('About to show Blown Up achievement...');
+                 showAchievementPopup("Blown Up");
+            }, 500);
+        }
+    }
+    
+    // Start the cutscene immediately
+    setTimeout(() => {
+        triggerNextBoom();
+    }, 300);
+}

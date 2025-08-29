@@ -193,6 +193,27 @@ footer.win95-taskbar {
   overflow-y: auto;
 }
 
+/* Achievement list item styles */
+.achievement-list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.achievement-list-item img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.achievement-list-item span {
+  flex: 1;
+}
+
 .achievement-info textarea {
   resize: none;
   background: #ffffff;
@@ -884,4 +905,20 @@ body, main#desktop, #desktop {
   height: 350px !important;
   min-width: 350px !important;
   min-height: 350px !important;
+} 
+
+#boom-cutscene-container img {
+  filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.8));
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
 } 
